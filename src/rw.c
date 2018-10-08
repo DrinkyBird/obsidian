@@ -121,10 +121,11 @@ const char *rw_read_mc_str(rw_t *rw) {
     }
 
     /* + 1 for null terminator */
-    int newlen = (end - start) + 1;
+    int newlen = (end - start) + 2;
 
     char *newstr = malloc(newlen);
     memcpy(newstr, s + start, newlen);
+    newstr[newlen-1] = 0;
 
     return newstr;
 }

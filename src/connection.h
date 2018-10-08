@@ -1,8 +1,10 @@
 #ifndef __CONNECTION_H__
 #define __CONNECTION_H__
 
+#include <pthread.h>
 #include "defs.h"
 #include "rw.h"
+#include "player.h"
 
 #define CONN_OUT_BUFFER_SIZE 2048
 
@@ -10,6 +12,8 @@ typedef struct connection_s {
     int fd;
     const char *name;
     const char *key;
+
+    player_t *player;
 
     byte *out_buf;
     rw_t *out_rw;

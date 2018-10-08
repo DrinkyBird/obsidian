@@ -16,7 +16,7 @@
 
 #define IN_BUF_SIZE 2048
 
-static void connection_handle_packet(connection_t *conn, unsigned char id, rw_t* rw);
+static bool connection_handle_packet(connection_t *conn, unsigned char id, rw_t* rw);
 static void connection_flush_out(connection_t *conn);
 static void connection_start_mapgz(connection_t *conn);
 static void connection_send_mapgz(connection_t *conn);
@@ -36,6 +36,7 @@ connection_t *connection_create(int fd) {
     conn->thread_successful = false;
     conn->thread_joined = false;
     conn->mapgz_sent = false;
+    conn->player = NULL;
 
     return conn;
 }
@@ -82,7 +83,8 @@ void connection_tick(connection_t *conn) {
     rw_seek(rw, 0, rw_set);
     while ((int)rw_tell(rw) < len - 1) {
         id = rw_read_byte(rw);
-        connection_handle_packet(conn, id, rw);
+        if (!connection_handle_packet(conn, id, rw))
+            break;
     }
 
     rw_destroy(rw);
@@ -90,7 +92,7 @@ void connection_tick(connection_t *conn) {
     free(buf);
 }
 
-void connection_handle_packet(connection_t *conn, unsigned char id, rw_t* rw) {
+bool connection_handle_packet(connection_t *conn, unsigned char id, rw_t* rw) {
     switch (id) {
         case PACKET_IDENT: {
             byte version = rw_read_byte(rw);
@@ -121,20 +123,26 @@ void connection_handle_packet(connection_t *conn, unsigned char id, rw_t* rw) {
         }
 
         case PACKET_MESSAGE: {
+            char buf[64];
             byte unused = rw_read_byte(rw);
-            const char *msg = rw_read_mc_str(rw);
-            printf("Message from client: %s\n", msg);
 
-            connection_msg(conn, msg);
+            const char *msg = rw_read_mc_str(rw);
+
+            snprintf(buf, 64, "<%s> %s", conn->name, msg);
+            printf("%s\n", buf);
+
+            connection_msg(conn, buf);
 
             break;
         }
 
         default: {
-            printf("I don't know how to handle packet %d\n", id);
-            break;
+            printf("Client %s sent invalid packet ID %d\n", conn->name, id);
+            return false;
         }
     }
+
+    return true;
 }
 
 void connection_flush_out(connection_t *conn) {
@@ -251,16 +259,10 @@ void connection_send_mapgz(connection_t *conn) {
         rw_write_int16be(packet, map->width);
         rw_write_int16be(packet, map->depth);
         rw_write_int16be(packet, map->height);
-
-        rw_write_byte(packet, PACKET_PLAYER_SPAWN);
-        rw_write_char(packet, -1);
-        rw_write_mc_str(packet, conn->name);
-        rw_write_int16be(packet, 0);
-        rw_write_int16be(packet, 0);
-        rw_write_int16be(packet, 0);
-        rw_write_byte(packet, 0);
-        rw_write_byte(packet, 0);
         packet_send(packet, conn);
+
+        conn->player = player_create(conn);
+        player_spawn(conn->player);
     }
 }
 

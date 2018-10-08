@@ -3,8 +3,10 @@
 #include <stdio.h>
 #include <unistd.h>
 #include <stdbool.h>
+#include <time.h>
 #include "listener.h"
 #include "defs.h"
+#include "player.h"
 #include "map.h"
 
 listener_t *listener;
@@ -16,6 +18,8 @@ static void handle_sigint(int);
 static bool running = true;
 
 int main(int argc, char *argv[]) {
+    srand(time(NULL));
+
     int width = 256;
     int depth = 256;
     int height = 256;
@@ -26,6 +30,8 @@ int main(int argc, char *argv[]) {
     unsigned short port = 25565;
     int players = 16;
     printf("Starting listener on %hu\n", port);
+
+    playerman_init(players);
 
     listener = listener_create(port, players);
     if (listener == NULL) {
@@ -54,4 +60,8 @@ void tick() {
 void handle_sigint(int d) {
     printf("Caught SIGINT.");
     running = false;
+}
+
+int rrand(int min, int max) {
+    return (rand()%(max-min))+min;
 }

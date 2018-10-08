@@ -81,4 +81,9 @@ typedef enum block_e {
 #define MAX(x, y) (((x) > (y)) ? (x) : (y))
 #define MIN(x, y) (((x) < (y)) ? (x) : (y))
 
+#define TOFLOAT(x) (float)(((float)x) / 32.0f)
+#define TOFIXED(x) (int)(((int)x) * 32)
+
+int rrand(int min, int max);
+
 #endif
