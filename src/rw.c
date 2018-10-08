@@ -98,7 +98,6 @@ int rw_read_mc(rw_t *rw, void *buf, int len) {
 const char *rw_read_mc_str(rw_t *rw) {
     char s[64];
     rw_read(rw, s, 64);
-    printf("newoff=%d\n", rw->offset);
 
     // trim the string
     int start = 0;
@@ -138,7 +137,6 @@ int rw_write_mc_str(rw_t *rw, const char *str) {
     }
     memcpy(s, str, MIN(64, slen));
     rw_write(rw, s, 64);
-    printf("OFF=%d\n", rw->offset);
     return 64;
 }
 

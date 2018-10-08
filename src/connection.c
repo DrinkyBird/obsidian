@@ -23,8 +23,6 @@ static void connection_send_mapgz(connection_t *conn);
 
 extern map_t *map;
 
-static int packetId = 0;
-
 connection_t *connection_create(int fd) {
     connection_t *conn = malloc(sizeof(*conn));
     conn->fd = fd;
@@ -215,9 +213,6 @@ void connection_flush_out(connection_t *conn) {
     l = send(conn->fd, conn->out_buf, len, 0);
     rw_seek(conn->out_rw, 0, rw_set);
 
-    printf("DBG flushed %d (%d)\n", packetId, l);
-    packetId++;
-
     if (l == -1) {
         if (errno == EAGAIN || errno == EWOULDBLOCK) {
             return;
@@ -262,7 +257,6 @@ void connection_start_mapgz(connection_t *conn) {
 
     rw_t *rw = rw_create(data->blocks, data->num_blocks + 4);
 
-    printf("size=%d\n", rw_size(rw));
     rw_write_int32be(rw, data->num_blocks);
 
     for (int i = 0; i < data->num_blocks; i++) {
@@ -305,15 +299,12 @@ void connection_send_mapgz(connection_t *conn) {
 
     free(buf);
 
-    printf("%d/%d\n", rw_tell(conn->mapgz_rw), rw_size(conn->mapgz_rw));
-
     if (rw_tell(conn->mapgz_rw) == rw_size(conn->mapgz_rw)) {
         free(conn->mapgz_data);
         rw_destroy(conn->mapgz_rw);
 
         conn->mapgz_sent = true;
 
-        printf("Sent level to %s\n", conn->name);
         packet = packet_create();
         rw_write_byte(packet, PACKET_LEVEL_FINISH);
         rw_write_int16be(packet, map->width);

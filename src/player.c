@@ -61,7 +61,8 @@ void player_spawn(player_t *player) {
     packet_send(packet, player->conn);
 
     char buf[64];
-    snprintf(buf, 64, "&e%s connected.", player->name);
+    snprintf(buf, 64, "&e%s joined the game.", player->name);
+    printf("%s joined the game\n", player->name);
     broadcast_msg(buf);
 }
 

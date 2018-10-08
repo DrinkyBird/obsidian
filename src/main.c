@@ -29,7 +29,7 @@ int main(int argc, char *argv[]) {
 
     unsigned short port = 25565;
     int players = 16;
-    printf("Starting listener on %hu\n", port);
+    printf("Starting server on port %hu\n", port);
 
     playerman_init(players);
 
@@ -39,7 +39,7 @@ int main(int argc, char *argv[]) {
         return 1;
     }
 
-    printf("Listening...\n\n");
+    printf("Server is now ready to accept connections\n\n");
 
     signal(SIGINT, handle_sigint);
 

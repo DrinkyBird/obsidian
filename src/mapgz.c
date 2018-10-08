@@ -9,8 +9,6 @@ void *mapgz_run(void *data) {
     mapgz_data_t *mgz = (mapgz_data_t *)data;
     connection_t *conn = mgz->conn;
 
-    printf("hi from mapgz: [%d, %d, %d] = %d\n", mgz->width, mgz->depth, mgz->height, mgz->num_blocks);
-
     int outsize = ((mgz->num_blocks+4) * 1.1) + 12;
     byte *outbuf = malloc(outsize);
     
@@ -32,8 +30,6 @@ void *mapgz_run(void *data) {
     deflateEnd(&stream);
 
     outsize = stream.total_out;
-
-    printf("DEFLATE successful %d bytes.\n", outsize);
 
     conn->mapgz_data = outbuf;
     conn->mapgz_size = outsize;
