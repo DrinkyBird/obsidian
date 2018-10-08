@@ -84,6 +84,9 @@ typedef enum block_e {
 #define TOFLOAT(x) (float)(((float)x) / 32.0f)
 #define TOFIXED(x) (int)(((int)x) * 32)
 
+#define FLOATANGLE(x) (float)((float)x * 256.0f / 360.0f);
+#define FIXEDANGLE(x) (unsigned char)((float)angle * 256.0f / 360.0f);
+
 int rrand(int min, int max);
 
 #endif

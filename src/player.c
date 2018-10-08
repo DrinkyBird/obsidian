@@ -1,4 +1,6 @@
 #include <stdlib.h>
+#include <stdio.h>
+#include "listener.h"
 #include "connection.h"
 #include "player.h"
 #include "map.h"
@@ -23,6 +25,7 @@ player_t *player_create(connection_t *conn) {
     player->x = 0.0f;
     player->y = 0.0f;
     player->z = 0.0f;
+    player->op = false;
 
     return player;
 }
@@ -56,4 +59,18 @@ void player_spawn(player_t *player) {
     rw_write_byte(packet, 0);
     rw_write_byte(packet, 0);
     packet_send(packet, player->conn);
+
+    char buf[64];
+    snprintf(buf, 64, "&e%s connected.", player->name);
+    broadcast_msg(buf);
+}
+
+bool player_is_block_admin_only(block_e b) {
+    return (
+           b == water
+        || b == water_still
+        || b == lava
+        || b == lava_still
+        || b == bedrock
+    );
 }

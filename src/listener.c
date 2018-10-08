@@ -128,3 +128,23 @@ void listener_destroy(listener_t *listener) {
 
     close(listener->socket_fd);
 }
+
+void broadcast_rw(rw_t *rw) {
+    for (int i = 0; i < num_connections; i++) {
+        if (connections[i] == NULL) {
+            continue;
+        }
+
+        connection_write_rw(connections[i], rw);
+    }
+}
+
+void broadcast_msg(const char *msg) {
+    rw_t *packet = packet_create();
+    rw_write_byte(packet, PACKET_MESSAGE);
+    rw_write_byte(packet, 0);
+    rw_write_mc_str(packet, msg);
+    broadcast_rw(packet);
+
+    rw_destroy_and_buffer(packet);
+}

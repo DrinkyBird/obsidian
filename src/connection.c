@@ -108,7 +108,7 @@ bool connection_handle_packet(connection_t *conn, unsigned char id, rw_t* rw) {
             rw_write_byte(packet, 7);
             rw_write_mc_str(packet, "test");
             rw_write_mc_str(packet, "testmotd");
-            rw_write_byte(packet, 0);
+            rw_write_byte(packet, 0x64);
             packet_send(packet, conn);
 
             connection_flush_out(conn);
@@ -131,7 +131,67 @@ bool connection_handle_packet(connection_t *conn, unsigned char id, rw_t* rw) {
             snprintf(buf, 64, "<%s> %s", conn->name, msg);
             printf("%s\n", buf);
 
-            connection_msg(conn, buf);
+            broadcast_msg(buf);
+
+            break;
+        }
+
+        case PACKET_PLAYER_POS_AND_ANGLE: {
+            if (!conn->player) {
+                printf("Client %s sent movement packed without a player\n", conn->name);
+                return false;
+            }
+
+            rw_read_byte(rw);
+            conn->player->x = TOFLOAT(rw_read_int16be(rw));
+            conn->player->y = TOFLOAT(rw_read_int16be(rw));
+            conn->player->z = TOFLOAT(rw_read_int16be(rw));
+            conn->player->yaw = FLOATANGLE(rw_read_byte(rw));
+            conn->player->pitch = FLOATANGLE(rw_read_byte(rw));
+
+            break;
+        }
+
+        case PACKET_SET_BLOCK_CLIENT: {
+            if (!conn->player) {
+                printf("Client %s sent setblock packed without a player\n", conn->name);
+                return false;
+            }
+
+            int x = rw_read_int16be(rw);
+            int y = rw_read_int16be(rw);
+            int z = rw_read_int16be(rw);
+            int destroyed = rw_read_byte(rw) == 0;
+            block_e block = (block_e) rw_read_byte(rw);
+            block_e oldBlock = (block_e) map_get(map, x, y, z);
+
+            if (!conn->player->op) {
+                if (player_is_block_admin_only(block) && !destroyed) {
+                    connection_msg(conn, "&cYou are not allowed to place that block");
+                } else if (player_is_block_admin_only(oldBlock)) {
+                    connection_msg(conn, "&cYou are not allowed to modify that block");
+                } else {
+                    goto nofix;
+                }
+
+                rw_t *packet = packet_create();
+                rw_write_byte(packet, PACKET_SET_BLOCK_SERVER);
+                rw_write_int16be(packet, x);
+                rw_write_int16be(packet, y);
+                rw_write_int16be(packet, z);
+                rw_write_byte(packet, oldBlock);
+                packet_send(packet, conn);
+
+                break;
+            }
+
+nofix:
+
+            if (destroyed) {
+                block = air;
+            }
+
+            map_set(map, x, y, z, block);
 
             break;
         }
