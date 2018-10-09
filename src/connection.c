@@ -20,7 +20,7 @@ static void connection_flush_out(connection_t *conn);
 static void connection_start_mapgz(connection_t *conn);
 static void connection_send_mapgz(connection_t *conn);
 static void connection_ping(connection_t *conn);
-static void connection_perror(connection_t *conn);
+static void connection_perror(connection_t *conn, const char *s);
 
 extern map_t *map;
 extern int current_tick;
@@ -91,7 +91,7 @@ void connection_tick(connection_t *conn) {
             return;
         }
 
-        connection_perror(conn);
+        connection_perror(conn, "recv");
         return;
     }
 
@@ -266,7 +266,7 @@ void connection_flush_out(connection_t *conn) {
             return;
         }
 
-        connection_perror(conn);
+        connection_perror(conn, "send");
         return;
     }
 }
@@ -414,11 +414,11 @@ void connection_ping(connection_t *conn) {
     packet_send(packet, conn);
 }
 
-void connection_perror(connection_t *conn) {
+void connection_perror(connection_t *conn, const char *s) {
     char *err = strerror(errno);
 
     char buf[256];
-    snprintf(buf, sizeof(buf), "%s", err);
+    snprintf(buf, sizeof(buf), "%s: %s", s, err);
 
     conn->fd_open = false;
 
