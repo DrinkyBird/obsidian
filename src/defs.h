@@ -4,6 +4,8 @@
 /* how many times per second the game updates */
 #define TICKRATE 20
 
+#define PROTOCOL_VERSION 7
+
 typedef unsigned char byte;
 
 enum {

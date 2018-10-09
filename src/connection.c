@@ -120,6 +120,12 @@ bool connection_handle_packet(connection_t *conn, unsigned char id, rw_t* rw) {
     switch (id) {
         case PACKET_IDENT: {
             byte version = rw_read_byte(rw);
+
+            if (version != PROTOCOL_VERSION) {
+                connection_disconnect(conn, "Invalid protocol version");
+                return false;
+            }
+            
             conn->name = rw_read_mc_str(rw);
             conn->key = rw_read_mc_str(rw);
             byte unused = rw_read_byte(rw);
@@ -132,7 +138,7 @@ bool connection_handle_packet(connection_t *conn, unsigned char id, rw_t* rw) {
 
                 if (strcasecmp(conn->name, connections[i]->name) == 0) {
                     connection_disconnect(conn, "Name already taken");
-                    return;
+                    return false;
                 }
             }
 
