@@ -69,6 +69,8 @@ void *heartbeat_run(void *parm) {
         fprintf(stderr, "failed to send heartbeat: %s\n", curl_easy_strerror(res));
     }
 
+    free(data);
+
     pthread_exit(NULL);
     return NULL;
 }
