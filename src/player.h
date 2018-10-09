@@ -17,6 +17,7 @@ typedef struct player_s {
 } player_t;
 
 void playerman_init(int players);
+int playerman_get_num_online();
 
 player_t *player_create(struct connection_s *conn);
 void player_destroy(player_t *player);

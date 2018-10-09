@@ -4,6 +4,8 @@
 /* how many times per second the game updates */
 #define TICKRATE 20
 
+#define HEARTBEAT_RATE (45 * TICKRATE)
+
 #define PROTOCOL_VERSION 7
 
 typedef unsigned char byte;

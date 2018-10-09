@@ -1,0 +1,1 @@
+option('enable_heartbeat', type: 'boolean', value: true, description: 'Enable heartbeats (requires libcurl)')

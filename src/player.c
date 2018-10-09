@@ -25,7 +25,6 @@ void playerman_init(int numplayers) {
 
 player_t *player_create(connection_t *conn) {
     int id = find_player_index();
-        printf("id=%d\n", id);
     if (id == -1) {
         return NULL;
     }
@@ -131,11 +130,22 @@ bool player_is_block_admin_only(block_e b) {
 
 int find_player_index() {
     for (int i = 0; i < num_players; i++) {
-        printf("[%d] = %p\n", i, players[i]);
         if (players[i] == NULL) {
             return i;
         }
     }
 
     return -1;
+}
+
+int playerman_get_num_online() {
+    int n = 0;
+
+    for (int i = 0; i < num_players; i++) {
+        if (players[i] != NULL) {
+            n++;
+        }
+    }
+
+    return n;
 }

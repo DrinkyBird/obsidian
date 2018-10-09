@@ -8,10 +8,20 @@ src = [
     'src/map.c',
     'src/mapgz.c',
     'src/player.c',
-    'src/cpe.c'
+    'src/cpe.c',
+    'src/md5.c'
 ]
 
-threaddep = dependency('threads')
-zlibdep = dependency('zlib')
+deps = [
+    dependency('threads', required: true),
+    dependency('zlib', required: true)
+]
 
-executable('miniclassic', src, dependencies : [threaddep, zlibdep])
+if get_option('enable_heartbeat')
+    deps += dependency('libcurl', required: true)
+    src += 'src/heartbeat.c'
+
+    add_global_arguments('-DENABLE_HEARTBEAT', language: 'c')
+endif
+
+executable('miniclassic', src, dependencies: deps)

@@ -8,6 +8,7 @@
 #include "defs.h"
 #include "player.h"
 #include "map.h"
+#include "heartbeat.h"
 
 listener_t *listener;
 map_t *map;
@@ -28,6 +29,10 @@ int main(int argc, char *argv[]) {
     printf("Creating map with size [%d, %d, %d]\n", width, depth, height);
     map = map_create(width, depth, height);
     map_generate(map);
+
+#ifdef ENABLE_HEARTBEAT
+    heartbeat_init();
+#endif
 
     unsigned short port = 25565;
     int players = 16;
@@ -51,12 +56,20 @@ int main(int argc, char *argv[]) {
     }
 
     listener_destroy(listener);
+    
+#ifdef ENABLE_HEARTBEAT
+    heartbeat_shutdown();
+#endif
 
     return 0;
 }
 
 void tick() {
     listener_tick(listener);
+
+#ifdef ENABLE_HEARTBEAT
+    heartbeat_tick();
+#endif
 
     current_tick++;
 }

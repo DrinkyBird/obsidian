@@ -13,6 +13,8 @@
 #include "rw.h"
 #include "map.h"
 #include "cpe.h"
+#include "md5.h"
+#include "heartbeat.h"
 
 #define IN_BUF_SIZE 8192
 
@@ -22,6 +24,7 @@ static void connection_start_mapgz(connection_t *conn);
 static void connection_send_mapgz(connection_t *conn);
 static void connection_ping(connection_t *conn);
 static void connection_perror(connection_t *conn, const char *s);
+static bool connection_verify_key(connection_t *conn);
 
 extern map_t *map;
 extern int current_tick;
@@ -138,6 +141,12 @@ bool connection_handle_packet(connection_t *conn, unsigned char id, rw_t* rw) {
 
             conn->name = rw_read_mc_str(rw);
             conn->key = rw_read_mc_str(rw);
+
+            if (!connection_verify_key(conn)) {
+                connection_disconnect(conn, "Authentication failure");
+                return false;
+            }
+
             byte unused = rw_read_byte(rw);
 
             /* check for name conflicts */
@@ -478,4 +487,26 @@ void connection_perror(connection_t *conn, const char *s) {
     conn->fd_open = false;
 
     connection_disconnect(conn, buf);
+}
+
+bool connection_verify_key(connection_t *conn) {
+#ifndef ENABLE_HEARTBEAT
+    return true;
+#else
+    struct MD5Context md;
+    unsigned char output[16];
+    char digest[33];
+
+    MD5Init(&md);
+    MD5Update(&md, heartbeat_get_salt(), SALT_LENGTH);
+    MD5Update(&md, conn->name, strlen(conn->name));
+    MD5Final(output, &md);
+
+    for (int i = 0; i < 16; i++) {
+        int i2 = i * 2;
+        snprintf(digest + i2, sizeof(digest) - i2, "%02x", output[i]);
+    }
+
+    return (strcasecmp(conn->key, digest) == 0);
+#endif
 }
