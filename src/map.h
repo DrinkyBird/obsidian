@@ -6,7 +6,7 @@
 
 typedef struct map_s {
     int width, depth, height;
-    block_e *blocks;
+    byte *blocks;
 } map_t;
 
 map_t *map_create(int width, int depth, int height);

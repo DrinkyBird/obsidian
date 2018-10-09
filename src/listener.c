@@ -127,7 +127,7 @@ void listener_destroy(listener_t *listener) {
             continue;
         }
 
-        connection_destroy(connections[i]);
+        connection_disconnect(connections[i], "Server shutting down");
     }
 
     close(listener->socket_fd);

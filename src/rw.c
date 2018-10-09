@@ -26,6 +26,7 @@ rw_t *rw_create_ro(void *buf, int len) {
 
 rw_t *rw_create_empty(int len) {
     byte *b = malloc(len);
+    memset(b, 0, len);
     rw_t *rw = rw_create(b, len);
 
     return rw;

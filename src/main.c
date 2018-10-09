@@ -62,7 +62,7 @@ void tick() {
 }
 
 void handle_sigint(int d) {
-    printf("Caught SIGINT.");
+    printf("Caught SIGINT.\n");
     running = false;
 }
 

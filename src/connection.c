@@ -48,12 +48,18 @@ connection_t *connection_create(int fd) {
     conn->extensions = NULL;
     conn->ext_index = 0;
 
+    memset(conn->out_buf, 0, CONN_OUT_BUFFER_SIZE);
+
     return conn;
 }
 
 void connection_destroy(connection_t *conn) {
     if (conn->id != -1) {
         connections[conn->id] = NULL;
+    }
+
+    if (conn->player != NULL) {
+        player_destroy(conn->player);
     }
 
     conn->is_connected = false;
