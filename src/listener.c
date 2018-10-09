@@ -14,7 +14,7 @@ static void listener_accept(listener_t *listener);
 static void listener_tick_connections();
 static int find_free_connection_index();
 
-static int num_connections;
+int num_connections;
 connection_t **connections;
 
 listener_t *listener_create(uint16_t port, int num_conns) {
@@ -78,7 +78,7 @@ void listener_tick_connections() {
 
 void listener_accept(listener_t *listener) {
     struct sockaddr_storage client_addr;
-    socklen_t addr_size;
+    socklen_t addr_size = sizeof(client_addr);
 
     int acceptfd = accept(listener->socket_fd, (struct sockaddr *)&client_addr, &addr_size);
     if (acceptfd == -1) {
@@ -101,8 +101,11 @@ void listener_accept(listener_t *listener) {
     int i = find_free_connection_index();
 
     if (i == -1) {
+        connection_disconnect(conn, "Server is full");
         return;
     }
+
+    conn->id = i;
 
     connections[i] = conn;
 }
@@ -118,6 +121,7 @@ int find_free_connection_index() {
 }
 
 void listener_destroy(listener_t *listener) {
+    printf("Closing listener...\n");
     for (int i = 0; i < num_connections; i++) {
         if (connections[i] == NULL) {
             continue;

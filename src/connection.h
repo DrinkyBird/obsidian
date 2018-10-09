@@ -9,6 +9,7 @@
 #define CONN_OUT_BUFFER_SIZE 2048
 
 typedef struct connection_s {
+    int id;
     int fd;
     const char *name;
     const char *key;
@@ -24,10 +25,15 @@ typedef struct connection_s {
     byte *mapgz_data;
     rw_t *mapgz_rw;
     int mapgz_size;
+
+    int last_ping;
+    bool is_connected;
+    bool fd_open;
 } connection_t;
 
 connection_t *connection_create(int fd);
 void connection_destroy(connection_t *conn);
+void connection_disconnect(connection_t *conn, const char *reason);
 
 void connection_tick(connection_t *conn);
 void connection_write(connection_t *conn, void *buf, int len);

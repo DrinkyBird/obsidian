@@ -19,11 +19,17 @@ static bool connection_handle_packet(connection_t *conn, unsigned char id, rw_t*
 static void connection_flush_out(connection_t *conn);
 static void connection_start_mapgz(connection_t *conn);
 static void connection_send_mapgz(connection_t *conn);
+static void connection_ping(connection_t *conn);
+static void connection_perror(connection_t *conn);
 
 extern map_t *map;
+extern int current_tick;
+extern int num_connections;
+extern connection_t **connections;
 
 connection_t *connection_create(int fd) {
     connection_t *conn = malloc(sizeof(*conn));
+    conn->id = -1;
     conn->fd = fd;
     conn->out_buf = malloc(CONN_OUT_BUFFER_SIZE);
     conn->out_rw = rw_create(conn->out_buf, CONN_OUT_BUFFER_SIZE);
@@ -34,11 +40,20 @@ connection_t *connection_create(int fd) {
     conn->thread_joined = false;
     conn->mapgz_sent = false;
     conn->player = NULL;
+    conn->last_ping = 0;
+    conn->is_connected = true;
+    conn->fd_open = true;
 
     return conn;
 }
 
 void connection_destroy(connection_t *conn) {
+    if (conn->id != -1) {
+        connections[conn->id] = NULL;
+    }
+
+    conn->is_connected = false;
+
     close(conn->fd);
     rw_destroy(conn->out_rw);
     free(conn->out_buf);
@@ -46,6 +61,10 @@ void connection_destroy(connection_t *conn) {
 }
 
 void connection_tick(connection_t *conn) {
+    if (!conn->is_connected) {
+        return;
+    }
+    
     unsigned char *buf = malloc(IN_BUF_SIZE);
     int len;
 
@@ -53,6 +72,7 @@ void connection_tick(connection_t *conn) {
         connection_send_mapgz(conn);
     }
 
+    connection_ping(conn);
     connection_flush_out(conn);
 
     len = recv(conn->fd, buf, IN_BUF_SIZE, 0);
@@ -64,7 +84,14 @@ void connection_tick(connection_t *conn) {
             return;
         }
 
-        perror("recv");
+        conn->fd_open = false;
+
+        if (errno == ECONNRESET || errno == EPIPE) {
+            connection_disconnect(conn, "Client quit");
+            return;
+        }
+
+        connection_perror(conn);
         return;
     }
 
@@ -97,8 +124,19 @@ bool connection_handle_packet(connection_t *conn, unsigned char id, rw_t* rw) {
             conn->key = rw_read_mc_str(rw);
             byte unused = rw_read_byte(rw);
 
+            /* check for name conflicts */
+            for (int i = 0; i < num_connections; i++) {
+                if (connections[i] == NULL || connections[i] == conn) {
+                    continue;
+                }
+
+                if (strcasecmp(conn->name, connections[i]->name) == 0) {
+                    connection_disconnect(conn, "Name already taken");
+                    return;
+                }
+            }
+
             bool supportsCpe = unused == 0x42;
-            const char *v = supportsCpe ? "supports CPE" : "doesn't support CPE";
 
             rw_t *packet = packet_create();
             rw_write_byte(packet, PACKET_IDENT);
@@ -203,13 +241,17 @@ nofix:
 }
 
 void connection_flush_out(connection_t *conn) {
+    if (!conn->is_connected) {
+        return;
+    }
+
     int len = rw_tell(conn->out_rw);
     if (len < 1) {
         return;
     }
 
     int l;
-    l = send(conn->fd, conn->out_buf, len, 0);
+    l = send(conn->fd, conn->out_buf, len, MSG_NOSIGNAL);
     rw_seek(conn->out_rw, 0, rw_set);
 
     if (l == -1) {
@@ -217,7 +259,14 @@ void connection_flush_out(connection_t *conn) {
             return;
         }
 
-        perror("send");
+        conn->fd_open = false;
+
+        if (errno == ECONNRESET || errno == EPIPE) {
+            connection_disconnect(conn, "Client quit");
+            return;
+        }
+
+        connection_perror(conn);
         return;
     }
 }
@@ -312,6 +361,11 @@ void connection_send_mapgz(connection_t *conn) {
         packet_send(packet, conn);
 
         conn->player = player_create(conn);
+        if (conn->player == NULL) {
+            connection_disconnect(conn, "Failed to create player instance");
+            return;
+        }
+
         player_spawn(conn->player);
     }
 }
@@ -322,4 +376,51 @@ void connection_msg(connection_t *conn, const char *msg) {
     rw_write_byte(packet, 0);
     rw_write_mc_str(packet, msg);
     packet_send(packet, conn);
+}
+
+void connection_disconnect(connection_t *conn, const char *reason) {
+    if (!conn->is_connected) {
+        return;
+    }
+
+    /* we don't need to send other packets if we're disconnecting */
+    rw_seek(conn->out_rw, 0, rw_set);
+
+    rw_t *packet = packet_create();
+    rw_write_byte(packet, PACKET_PLAYER_DISCONNECT);
+    rw_write_mc_str(packet, reason);
+    packet_send(packet, conn);
+    connection_flush_out(conn);
+
+    printf("%s was disconnected (%s)\n", conn->name, reason);
+
+    if (conn->player != NULL) {
+        char buf[64];
+        snprintf(buf, 64, "&e%s disconnected (%s)", conn->name, reason);
+        broadcast_msg(buf);
+    }
+
+    connection_destroy(conn);
+}
+
+void connection_ping(connection_t *conn) {
+    int delta = current_tick - conn->last_ping;
+    if (delta < 5 * TICKRATE) {
+        return;
+    }
+
+    rw_t *packet = packet_create();
+    rw_write_byte(packet, PACKET_PING);
+    packet_send(packet, conn);
+}
+
+void connection_perror(connection_t *conn) {
+    char *err = strerror(errno);
+
+    char buf[256];
+    snprintf(buf, sizeof(buf), "%s", err);
+
+    conn->fd_open = false;
+
+    connection_disconnect(conn, buf);
 }

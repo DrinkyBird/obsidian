@@ -12,6 +12,8 @@
 listener_t *listener;
 map_t *map;
 
+int current_tick = 0;
+
 static void tick();
 static void handle_sigint(int);
 
@@ -55,6 +57,8 @@ int main(int argc, char *argv[]) {
 
 void tick() {
     listener_tick(listener);
+
+    current_tick++;
 }
 
 void handle_sigint(int d) {

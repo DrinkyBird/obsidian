@@ -36,10 +36,6 @@ void *mapgz_run(void *data) {
     conn->mapgz_rw = rw_create(conn->mapgz_data, conn->mapgz_size);
     rw_seek(conn->mapgz_rw, 0, rw_set);
 
-    FILE *o = fopen("test.gz", "wb");
-    fwrite(outbuf, outsize, 1, o);
-    fclose(o);
-
     conn->thread_successful = true;
     conn->thread_running = false;
 

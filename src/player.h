@@ -6,10 +6,12 @@
 struct connection_s;
 
 typedef struct player_s {
+    int id;
     const char *name;
 
     float x, y, z, yaw, pitch;
     bool op;
+    bool spawned;
 
     struct connection_s *conn;
 } player_t;
