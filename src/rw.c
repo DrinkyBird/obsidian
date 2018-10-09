@@ -1,7 +1,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-#include <SDL2/SDL_endian.h>
+#include "byteorder.h"
 #include "rw.h"
 
 static void rw_clamp_offset(rw_t *rw);
@@ -162,49 +162,49 @@ byte rw_read_byte(rw_t *rw) {
 short rw_read_int16le(rw_t *rw) {
     short c; CHECK_SIZE();
     rw_read(rw, &c, sizeof(c));
-    return SDL_SwapLE16(c);
+    return endian_tolittle32(c);
 }
 
 short rw_read_int16be(rw_t *rw) {
     short c; CHECK_SIZE();
     rw_read(rw, &c, sizeof(c));
-    return SDL_SwapBE16(c);
+    return endian_tobig16(c);
 }
 
 unsigned short rw_read_uint16le(rw_t *rw) {
     unsigned short c; CHECK_SIZE();
     rw_read(rw, &c, sizeof(c));
-    return SDL_SwapLE16(c);
+    return endian_tolittle32(c);
 }
 
 unsigned short rw_read_uint16be(rw_t *rw) {
     unsigned short c; CHECK_SIZE();
     rw_read(rw, &c, sizeof(c));
-    return SDL_SwapBE16(c);
+    return endian_tobig16(c);
 }
 
 int rw_read_int32le(rw_t *rw) {
     int c; CHECK_SIZE();
     rw_read(rw, &c, sizeof(c));
-    return SDL_SwapLE32(c);
+    return endian_tolittle32(c);
 }
 
 int rw_read_int32be(rw_t *rw) {
     int c; CHECK_SIZE();
     rw_read(rw, &c, sizeof(c));
-    return SDL_SwapBE32(c);
+    return endian_tobig32(c);
 }
 
 unsigned int rw_read_uint32le(rw_t *rw) {
     unsigned int c; CHECK_SIZE();
     rw_read(rw, &c, sizeof(c));
-    return SDL_SwapLE32(c);
+    return endian_tolittle32(c);
 }
 
 unsigned int rw_read_uint32be(rw_t *rw) {
     unsigned int c; CHECK_SIZE();
     rw_read(rw, &c, sizeof(c));
-    return SDL_SwapBE32(c);
+    return endian_tobig32(c);
 }
 
 
@@ -217,41 +217,41 @@ int rw_write_byte(rw_t *rw, byte c) {
 }
 
 int rw_write_int16le(rw_t *rw, short c) {
-    short a = SDL_SwapLE16(c);
+    short a = endian_tolittle32(c);
     return rw_write(rw, &a, sizeof(a));
 }
 
 int rw_write_int16be(rw_t *rw, short c) {
-    short a = SDL_SwapBE16(c);
+    short a = endian_tobig16(c);
     return rw_write(rw, &a, sizeof(a));
 }
 
 int rw_write_uint16le(rw_t *rw, unsigned short c) {
-    unsigned short a = SDL_SwapLE16(c);
+    unsigned short a = endian_tolittle32(c);
     return rw_write(rw, &a, sizeof(a));
 }
 
 int rw_write_uint16be(rw_t *rw, unsigned short c) {
-    unsigned short a = SDL_SwapBE16(c);
+    unsigned short a = endian_tobig16(c);
     return rw_write(rw, &a, sizeof(a));
 }
 
 int rw_write_int32le(rw_t *rw, int c) {
-    short a = SDL_SwapLE32(c);
+    short a = endian_tolittle32(c);
     return rw_write(rw, &a, sizeof(a));
 }
 
 int rw_write_int32be(rw_t *rw, int c) {
-    short a = SDL_SwapBE32(c);
+    short a = endian_tobig32(c);
     return rw_write(rw, &a, sizeof(a));
 }
 
 int rw_write_uint32le(rw_t *rw, unsigned int c) {
-    unsigned short a = SDL_SwapLE32(c);
+    unsigned short a = endian_tolittle32(c);
     return rw_write(rw, &a, sizeof(a));
 }
 
 int rw_write_uint32be(rw_t *rw, unsigned int c) {
-    unsigned short a = SDL_SwapBE32(c);
+    unsigned short a = endian_tobig32(c);
     return rw_write(rw, &a, sizeof(a));
 }

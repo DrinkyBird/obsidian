@@ -241,7 +241,7 @@ nofix:
 }
 
 void connection_flush_out(connection_t *conn) {
-    if (!conn->is_connected) {
+    if (!conn->is_connected || !conn->fd_open) {
         return;
     }
 

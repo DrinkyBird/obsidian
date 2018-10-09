@@ -10,8 +10,7 @@ src = [
     'src/player.c'
 ]
 
-sdldep = dependency('sdl2', version : '>=2.0.0')
 threaddep = dependency('threads')
 zlibdep = dependency('zlib')
 
-executable('miniclassic', src, dependencies : [sdldep, threaddep, zlibdep])
+executable('miniclassic', src, dependencies : [threaddep, zlibdep])
