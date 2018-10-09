@@ -7,7 +7,8 @@ src = [
     'src/rw.c',
     'src/map.c',
     'src/mapgz.c',
-    'src/player.c'
+    'src/player.c',
+    'src/cpe.c'
 ]
 
 threaddep = dependency('threads')

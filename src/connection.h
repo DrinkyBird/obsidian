@@ -5,6 +5,7 @@
 #include "defs.h"
 #include "rw.h"
 #include "player.h"
+#include "cpe.h"
 
 #define CONN_OUT_BUFFER_SIZE 2048
 
@@ -29,6 +30,10 @@ typedef struct connection_s {
     int last_ping;
     bool is_connected;
     bool fd_open;
+
+    int num_extensions;
+    cpeext_t **extensions;
+    int ext_index;
 } connection_t;
 
 connection_t *connection_create(int fd);

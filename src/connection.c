@@ -12,8 +12,9 @@
 #include "defs.h"
 #include "rw.h"
 #include "map.h"
+#include "cpe.h"
 
-#define IN_BUF_SIZE 2048
+#define IN_BUF_SIZE 8192
 
 static bool connection_handle_packet(connection_t *conn, unsigned char id, rw_t* rw);
 static void connection_flush_out(connection_t *conn);
@@ -43,6 +44,9 @@ connection_t *connection_create(int fd) {
     conn->last_ping = 0;
     conn->is_connected = true;
     conn->fd_open = true;
+    conn->num_extensions = 0;
+    conn->extensions = NULL;
+    conn->ext_index = 0;
 
     return conn;
 }
@@ -125,7 +129,7 @@ bool connection_handle_packet(connection_t *conn, unsigned char id, rw_t* rw) {
                 connection_disconnect(conn, "Invalid protocol version");
                 return false;
             }
-            
+
             conn->name = rw_read_mc_str(rw);
             conn->key = rw_read_mc_str(rw);
             byte unused = rw_read_byte(rw);
@@ -158,6 +162,27 @@ bool connection_handle_packet(connection_t *conn, unsigned char id, rw_t* rw) {
             rw_write_byte(packet, PACKET_LEVEL_INIT);
             packet_send(packet, conn);
 
+            if (supportsCpe) {
+                int numexts;
+                cpeext_t *exts = cpe_get_supported_exts(&numexts);
+
+                packet = packet_create();
+                rw_write_byte(packet, PACKET_EXTINFO);
+                rw_write_mc_str(packet, "miniclassic");
+                rw_write_int16be(packet, numexts);
+                packet_send(packet, conn);
+
+                for (int i = 0; i < numexts; i++) {
+                    cpeext_t ext = exts[i];
+
+                    packet = packet_create();
+                    rw_write_byte(packet, PACKET_EXTENTRY);
+                    rw_write_mc_str(packet, ext.name);
+                    rw_write_int32be(packet, ext.version);
+                    packet_send(packet, conn);
+                }
+            }
+
             connection_start_mapgz(conn);
 
             break;
@@ -165,7 +190,7 @@ bool connection_handle_packet(connection_t *conn, unsigned char id, rw_t* rw) {
 
         case PACKET_MESSAGE: {
             char buf[64];
-            byte unused = rw_read_byte(rw);
+            rw_read_byte(rw);
 
             const char *msg = rw_read_mc_str(rw);
 
@@ -233,6 +258,24 @@ nofix:
             }
 
             map_set(map, x, y, z, block);
+
+            break;
+        }
+
+        case PACKET_EXTINFO: {
+            rw_read_mc_str(rw);
+            conn->num_extensions = rw_read_int16be(rw);
+            conn->extensions = calloc(conn->num_extensions, sizeof(cpeext_t));
+
+            break;
+        }
+
+        case PACKET_EXTENTRY: {
+            cpeext_t *ext = malloc(sizeof(cpeext_t));
+            ext->name = rw_read_mc_str(rw);
+            ext->version = rw_read_int32be(rw);
+
+            conn->extensions[conn->ext_index++] = ext;
 
             break;
         }

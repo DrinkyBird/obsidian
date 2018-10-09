@@ -25,6 +25,9 @@ enum {
     PACKET_MESSAGE = 0x0d,
     PACKET_PLAYER_DISCONNECT = 0x0e,
     PACKET_PLAYER_SET_TYPE = 0x0f,
+
+    PACKET_EXTINFO = 0x10,
+    PACKET_EXTENTRY = 0x11
 };
 
 typedef enum block_e {
