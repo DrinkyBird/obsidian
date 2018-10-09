@@ -12,7 +12,6 @@
 #include "defs.h"
 #include "rw.h"
 #include "map.h"
-#include <SDL/SDL_endian.h>
 
 #define IN_BUF_SIZE 2048
 

@@ -1,7 +1,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-#include <SDL/SDL_endian.h>
+#include <SDL2/SDL_endian.h>
 #include "rw.h"
 
 static void rw_clamp_offset(rw_t *rw);
