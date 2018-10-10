@@ -508,6 +508,10 @@ bool connection_verify_key(connection_t *conn) {
 #ifndef ENABLE_HEARTBEAT
     return true;
 #else
+    if (!configuration->verifynames) {
+        return true;
+    }
+
     struct MD5Context md;
     unsigned char output[16];
     char digest[33];

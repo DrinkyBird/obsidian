@@ -30,6 +30,8 @@ int config_handle_ini(void* user, const char* section, const char* name, const c
             configuration->name = value;
         } else if (strcasecmp(name, "motd") == 0) {
             configuration->motd = value;
+        } else if (strcasecmp(name, "verifynames") == 0) {
+            configuration->verifynames = (bool) strtoul(value, NULL, 10);
         }
     }
 
