@@ -498,6 +498,10 @@ bool connection_verify_key(connection_t *conn) {
     unsigned char output[16];
     char digest[33];
 
+    if (!configuration->verify_names) {
+        return true;
+    }
+
     MD5Init(&md);
     MD5Update(&md, heartbeat_get_salt(), SALT_LENGTH);
     MD5Update(&md, conn->name, strlen(conn->name));
