@@ -6,11 +6,12 @@
 #include "rw.h"
 #include "player.h"
 #include "cpe.h"
+#include "platform.h"
 
 #define CONN_OUT_BUFFER_SIZE 2048
 
 typedef struct connection_s {
-    int id;
+    socket_t id;
     int fd;
     const char *name;
     const char *key;

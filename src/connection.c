@@ -1,6 +1,4 @@
 #include <stdlib.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
 #include <errno.h>
 #include <stdio.h>
 #include <fcntl.h>
@@ -16,6 +14,13 @@
 #include "md5.h"
 #include "heartbeat.h"
 #include "config.h"
+#include "platform.h"
+
+#ifndef _WIN32
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <sys/ioctl.h>
+#endif
 
 #define IN_BUF_SIZE 8192
 
@@ -315,8 +320,13 @@ void connection_flush_out(connection_t *conn) {
         return;
     }
 
+    int sendflags = 0;
+#ifdef __linux__
+    sendflags &= MSG_NOSIGNAL;
+#endif
+
     int l;
-    l = send(conn->fd, conn->out_buf, len, MSG_NOSIGNAL);
+    l = send(conn->fd, conn->out_buf, len, sendflags);
     rw_seek(conn->out_rw, 0, rw_set);
 
     if (l == -1) {
@@ -497,10 +507,6 @@ bool connection_verify_key(connection_t *conn) {
     struct MD5Context md;
     unsigned char output[16];
     char digest[33];
-
-    if (!configuration->verify_names) {
-        return true;
-    }
 
     MD5Init(&md);
     MD5Update(&md, heartbeat_get_salt(), SALT_LENGTH);

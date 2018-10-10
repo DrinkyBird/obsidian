@@ -1,5 +1,9 @@
 project('miniclassic', 'c')
 
+cc = meson.get_compiler('c')
+cflags = []
+is_mingw = (build_machine.system() == 'windows' and cc.get_id() == 'gcc')
+
 src = [
     'src/main.c',
     'src/listener.c',
@@ -15,8 +19,8 @@ src = [
 ]
 
 deps = [
-    dependency('threads', required: true),
-    dependency('zlib', required: true)
+    dependency('threads', required: true, static: true),
+    dependency('zlib', required: true, static: true)
 ]
 
 if get_option('enable_heartbeat')
@@ -28,4 +32,8 @@ endif
 
 configure_file(input: 'settings.ini', output: 'settings.ini', copy: true)
 
-executable('miniclassic', src, dependencies: deps)
+if build_machine.system() == 'windows'
+    deps += cc.find_library('ws2_32')
+endif
+
+executable('miniclassic', src, dependencies: deps, c_args: cflags)

@@ -1,12 +1,17 @@
 #include <stdlib.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
 #include <errno.h>
 #include <stdio.h>
 #include <fcntl.h>
 #include <unistd.h>
 #include "listener.h"
 #include "connection.h"
+#include "platform.h"
+
+#ifndef _WIN32
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <sys/ioctl.h>
+#endif
 
 #define BACKLOG 10
 
@@ -53,7 +58,7 @@ listener_t *listener_create(uint16_t port, int num_conns) {
         return NULL;
     }
 
-    fcntl(listener->socket_fd, F_SETFL, O_NONBLOCK);
+    ioctlsocket(listener->socket_fd, FIONBIO, &yes);
 
     connections = calloc(num_conns, sizeof(*connections));
     num_connections = num_conns;
@@ -91,7 +96,8 @@ void listener_accept(listener_t *listener) {
         return;
     }
 
-    fcntl(acceptfd, F_SETFL, O_NONBLOCK);
+    int yes = 1;
+    ioctlsocket(acceptfd, FIONBIO, &yes);
     struct sockaddr_in *sin = (struct sockaddr_in*)&client_addr;
 
     unsigned char *ip = (unsigned char *)&sin->sin_addr.s_addr;

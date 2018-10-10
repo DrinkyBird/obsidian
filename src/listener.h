@@ -3,10 +3,11 @@
 
 #include <stdint.h>
 #include "rw.h"
+#include "platform.h"
 
 typedef struct listener_s {
     uint16_t port;
-    int socket_fd;
+    socket_t socket_fd;
 } listener_t;
 
 listener_t *listener_create(uint16_t port, int connections);
