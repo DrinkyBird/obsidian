@@ -11,6 +11,7 @@ int sock_error();
 void sock_perror(const char *s);
 
 void platform_init();
+void platform_tick();
 void platform_shutdown();
 
 #endif

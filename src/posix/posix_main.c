@@ -4,6 +4,10 @@ void platform_init() {
     /* We don't need to do anything here */
 }
 
+void platform_tick() {
+    /* We don't need to do anything here */
+}
+
 void platform_shutdown() {
     /* We don't need to do anything here */
 }

@@ -106,6 +106,8 @@ void tick() {
     heartbeat_tick();
 #endif
 
+    platform_tick();
+
     current_tick++;
 }
 
