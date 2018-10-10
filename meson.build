@@ -34,6 +34,15 @@ configure_file(input: 'settings.ini', output: 'settings.ini', copy: true)
 
 if build_machine.system() == 'windows'
     deps += cc.find_library('ws2_32')
+
+    src += [
+        'src/win32/win_main.c',
+        'src/win32/win_err.c'
+    ]
+elif build_machine.system() == 'linux'
+    src += [
+        'src/win32/posix_err.c'
+    ]
 endif
 
 executable('miniclassic', src, dependencies: deps, c_args: cflags)
