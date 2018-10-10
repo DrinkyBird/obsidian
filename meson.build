@@ -41,7 +41,8 @@ if build_machine.system() == 'windows'
     ]
 elif build_machine.system() == 'linux'
     src += [
-        'src/win32/posix_err.c'
+        'src/posix/posix_main.c',
+        'src/posix/posix_err.c'
     ]
 endif
 
