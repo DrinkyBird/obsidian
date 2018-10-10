@@ -24,7 +24,7 @@ int config_handle_ini(void* user, const char* section, const char* name, const c
     if (strcasecmp(section, "server") == 0) {
         if (strcasecmp(name, "port") == 0) {
             configuration->port = (unsigned short) strtoul(value, NULL, 10);
-        } else if (strcasecmp(name, "port") == 0) {
+        } else if (strcasecmp(name, "players") == 0) {
             configuration->maxplayers = (int) strtoul(value, NULL, 10);
         } else if (strcasecmp(name, "name") == 0) {
             configuration->name = value;
