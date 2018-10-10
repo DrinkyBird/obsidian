@@ -30,7 +30,7 @@ listener_t *listener_create(uint16_t port, int num_conns) {
     err = (listener->socket_fd = socket(AF_INET, SOCK_STREAM, 0));
 
     if (err == -1) {
-        perror("socket");
+        sock_perror("socket");
         return NULL;
     }
 
@@ -42,19 +42,19 @@ listener_t *listener_create(uint16_t port, int num_conns) {
     int yes = 1;
     err = setsockopt(listener->socket_fd, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(yes));
     if (err == -1) {
-        perror("setsockopt(SO_REUSEADDR)");
+        sock_perror("setsockopt(SO_REUSEADDR)");
         return NULL;
     }
 
     err = bind(listener->socket_fd, (struct sockaddr *)&server_addr, sizeof(server_addr));
     if (err == -1) {
-        perror("bind");
+        sock_perror("bind");
         return NULL;
     }
 
     err = listen(listener->socket_fd, BACKLOG);
     if (err == -1) {
-        perror("listen");
+        sock_perror("listen");
         return NULL;
     }
 
@@ -87,12 +87,13 @@ void listener_accept(listener_t *listener) {
 
     int acceptfd = accept(listener->socket_fd, (struct sockaddr *)&client_addr, &addr_size);
     if (acceptfd == -1) {
-        if (errno == EAGAIN || errno == EWOULDBLOCK) {
+        int e = sock_error();
+        if (e == SOCKERR_EAGAIN || e == SOCKERR_EWOULDBLOCK) {
             /* no incoming connections */
             return;
         }
 
-        perror("accept");
+        sock_perror("accept");
         return;
     }
 

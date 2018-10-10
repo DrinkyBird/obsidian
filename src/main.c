@@ -12,6 +12,7 @@
 #include "map.h"
 #include "heartbeat.h"
 #include "config.h"
+#include "platform.h"
 
 #define IS_OPT(n) (strcmp(long_options[option_index].name, n) == 0) 
 
@@ -55,6 +56,8 @@ int main(int argc, char *argv[]) {
     }
 
     srand(time(NULL));
+    
+    platform_init();
 
     int width = configuration->width;
     int depth = configuration->depth;
@@ -90,6 +93,8 @@ int main(int argc, char *argv[]) {
 #ifdef ENABLE_HEARTBEAT
     heartbeat_shutdown();
 #endif
+
+    platform_shutdown();
 
     return 0;
 }

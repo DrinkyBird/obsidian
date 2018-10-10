@@ -7,4 +7,10 @@
 #include "posix/posix_platform.h"
 #endif
 
+int sock_error();
+void sock_perror(const char *s);
+
+void platform_init();
+void platform_shutdown();
+
 #endif

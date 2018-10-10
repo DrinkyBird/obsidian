@@ -98,14 +98,16 @@ void connection_tick(connection_t *conn) {
     if (len == -1) {
         free(buf);
 
-        if (errno == EAGAIN || errno == EWOULDBLOCK) {
+        int e = sock_error();
+
+        if (e == SOCKERR_EAGAIN || e == SOCKERR_EWOULDBLOCK) {
             /* no data */
             return;
         }
 
         conn->fd_open = false;
 
-        if (errno == ECONNRESET || errno == EPIPE) {
+        if (e == ECONNRESET || e == EPIPE) {
             connection_disconnect(conn, "Client quit");
             return;
         }
@@ -330,13 +332,15 @@ void connection_flush_out(connection_t *conn) {
     rw_seek(conn->out_rw, 0, rw_set);
 
     if (l == -1) {
-        if (errno == EAGAIN || errno == EWOULDBLOCK) {
+        int e = sock_error();
+
+        if (e == SOCKERR_EAGAIN || e == SOCKERR_EWOULDBLOCK) {
             return;
         }
 
         conn->fd_open = false;
 
-        if (errno == ECONNRESET || errno == EPIPE) {
+        if (e == ECONNRESET || e == EPIPE) {
             connection_disconnect(conn, "Client quit");
             return;
         }

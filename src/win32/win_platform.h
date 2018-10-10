@@ -6,4 +6,7 @@
 
 typedef SOCKET socket_t;
 
+#define SOCKERR_EAGAIN 0
+#define SOCKERR_EWOULDBLOCK WSAEWOULDBLOCK
+
 #endif
