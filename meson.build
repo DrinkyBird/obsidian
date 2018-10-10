@@ -9,7 +9,9 @@ src = [
     'src/mapgz.c',
     'src/player.c',
     'src/cpe.c',
-    'src/md5.c'
+    'src/md5.c',
+    'src/ini.c',
+    'src/config.c'
 ]
 
 deps = [
@@ -23,5 +25,7 @@ if get_option('enable_heartbeat')
 
     add_global_arguments('-DENABLE_HEARTBEAT', language: 'c')
 endif
+
+configure_file(input: 'settings.ini', output: 'settings.ini', copy: true)
 
 executable('miniclassic', src, dependencies: deps)

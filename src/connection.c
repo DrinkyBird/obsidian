@@ -15,6 +15,7 @@
 #include "cpe.h"
 #include "md5.h"
 #include "heartbeat.h"
+#include "config.h"
 
 #define IN_BUF_SIZE 8192
 
@@ -166,8 +167,8 @@ bool connection_handle_packet(connection_t *conn, unsigned char id, rw_t* rw) {
             rw_t *packet = packet_create();
             rw_write_byte(packet, PACKET_IDENT);
             rw_write_byte(packet, 7);
-            rw_write_mc_str(packet, "test");
-            rw_write_mc_str(packet, "testmotd");
+            rw_write_mc_str(packet, configuration->name);
+            rw_write_mc_str(packet, configuration->motd);
             rw_write_byte(packet, 0x64);
             packet_send(packet, conn);
 

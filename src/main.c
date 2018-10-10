@@ -4,11 +4,16 @@
 #include <unistd.h>
 #include <stdbool.h>
 #include <time.h>
+#include <getopt.h>
+#include <string.h>
 #include "listener.h"
 #include "defs.h"
 #include "player.h"
 #include "map.h"
 #include "heartbeat.h"
+#include "config.h"
+
+#define IS_OPT(n) (strcmp(long_options[option_index].name, n) == 0) 
 
 listener_t *listener;
 map_t *map;
@@ -20,12 +25,40 @@ static void handle_sigint(int);
 
 static bool running = true;
 
+static const struct option long_options[] = {
+    { "port", required_argument, NULL, 0 },
+    { "max-players", required_argument, NULL, 0 },
+    {NULL, no_argument, NULL, 0}
+};
+
 int main(int argc, char *argv[]) {
+    int c, option_index;
+
+    if (!config_parse()) {
+        return 1;
+    }
+
+    while ((c = getopt_long(argc, argv, "", &long_options, &option_index)) != -1) {
+        switch (c) {
+            case 0: {
+                if (IS_OPT("port")) {
+                    configuration->port = (unsigned short) strtoul(optarg, NULL, 10);
+                }
+
+                if (IS_OPT("max-players")) {
+                    configuration->maxplayers = (int) strtoul(optarg, NULL, 10);
+                }
+
+                break;
+            }
+        }
+    }
+
     srand(time(NULL));
 
-    int width = 256;
-    int depth = 256;
-    int height = 256;
+    int width = configuration->width;
+    int depth = configuration->depth;
+    int height = configuration->height;
     printf("Creating map with size [%d, %d, %d]\n", width, depth, height);
     map = map_create(width, depth, height);
     map_generate(map);
@@ -33,16 +66,13 @@ int main(int argc, char *argv[]) {
 #ifdef ENABLE_HEARTBEAT
     heartbeat_init();
 #endif
+    printf("Starting server on port %hu\n", configuration->port);
 
-    unsigned short port = 25565;
-    int players = 16;
-    printf("Starting server on port %hu\n", port);
+    playerman_init(configuration->maxplayers);
 
-    playerman_init(players);
-
-    listener = listener_create(port, players);
+    listener = listener_create(configuration->port, configuration->maxplayers);
     if (listener == NULL) {
-        fprintf(stderr, "Failed to create listener on port %hu\n", port);
+        fprintf(stderr, "Failed to create listener on port %hu\n", configuration->port);
         return 1;
     }
 
