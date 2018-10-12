@@ -2,5 +2,11 @@
 #define __VERSION_H__
 
 #define VERSION_STR "@version@"
+#define VERSION_COMPILER_ID "@compiler_id@"
+#define VERSION_COMPILER_VER "@compiler_version@"
+
+#define VERSION_HOST_OS "@host_os@"
+#define VERSION_HOST_ENDIAN "@host_endian@"
+#define VERSION_HOST_FAMILY "@host_family@"
 
 #endif // __VERSION_H__

@@ -37,8 +37,12 @@ configure_file(input: 'settings.ini', output: 'settings.ini', copy: true)
 
 version_conf = configuration_data()
 version_conf.set('version', meson.project_version())
+version_conf.set('compiler_id', cc.get_id())
+version_conf.set('compiler_version', cc.version())
+version_conf.set('host_os', host_machine.system())
+version_conf.set('host_endian', host_machine.endian())
+version_conf.set('host_family', host_machine.cpu_family())
 configure_file(input: 'version.h.in', output: 'version.h', configuration: version_conf)
-
 
 builddir_inc = include_directories('.')
 

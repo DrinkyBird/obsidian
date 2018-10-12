@@ -55,6 +55,8 @@ int main(int argc, char *argv[]) {
             case 0: {
                 if (IS_OPT("version")) {
                     printf("%s\n", VERSION_STR);
+                    printf("%s\n", app_get_full_name());
+                    printf("compiled with %s %s for %s-endian %s %s\n", VERSION_COMPILER_ID, VERSION_COMPILER_VER, VERSION_HOST_ENDIAN, VERSION_HOST_FAMILY, VERSION_HOST_OS);
                     return 0;
                 }
 
