@@ -1,7 +1,13 @@
 #include <stdlib.h>
 #include <stdio.h>
+#include "sane_windows.h"
 #include "../platform.h"
 #include "../player.h"
+
+#define WINVER_SIZE 16
+
+static char *win_name;
+static char *win_ver;
 
 void platform_init() {
     SetConsoleTitleA("miniclassic");
@@ -16,6 +22,15 @@ void platform_init() {
     }
 
     puts("Successfully initialised Winsock.\n");
+
+    OSVERSIONINFOA ver;
+    memset(&ver, 0, sizeof(ver));
+    ver.dwOSVersionInfoSize = sizeof(OSVERSIONINFOA);
+    GetVersionExA(&ver);
+
+    win_name = "Windows NT";
+    win_ver = malloc(WINVER_SIZE);
+    snprintf(win_ver, WINVER_SIZE, "%ld.%ld", ver.dwMajorVersion, ver.dwMinorVersion);
 }
 
 void platform_tick() {
@@ -30,9 +45,9 @@ void platform_shutdown() {
 }
 
 const char *platform_get_name() {
-    return "Windows NT";
+    return win_name;
 }
 
 const char *platform_get_version() {
-    return "";
+    return win_ver;
 }
