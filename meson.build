@@ -40,12 +40,18 @@ version_conf.set('version', meson.project_version())
 configure_file(input: 'version.h.in', output: 'version.h', configuration: version_conf)
 
 
+builddir_inc = include_directories('.')
+
 if build_machine.system() == 'windows'
+    windows = import('windows')
     deps += cc.find_library('ws2_32')
+    rc = windows.compile_resources('src/win32/miniclassic.rc', include_directories: builddir_inc)
 
     src += [
         'src/win32/win_main.c',
-        'src/win32/win_err.c'
+        'src/win32/win_err.c',
+
+        rc
     ]
 elif build_machine.system() == 'linux'
     src += [
@@ -53,7 +59,5 @@ elif build_machine.system() == 'linux'
         'src/posix/posix_err.c'
     ]
 endif
-
-builddir_inc = include_directories('.')
 
 executable('miniclassic', src, dependencies: deps, include_directories: builddir_inc)
