@@ -26,6 +26,7 @@ map_t *map_create(const char *name, int width, int depth, int height);
 block_e map_get(map_t *map, int x, int y, int z);
 bool map_set(map_t *map, int x, int y, int z, block_e block);
 
+map_t *map_load(const char *name);
 void map_save(map_t *map);
 
 void map_generate(map_t *map);

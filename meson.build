@@ -25,6 +25,8 @@ deps = [
     dependency('zlib', required: true, static: true)
 ]
 
+
+add_global_arguments('-DINI_HANDLER_LINENO', language: 'c')
 if get_option('enable_heartbeat')
     deps += dependency('libcurl', required: true)
     src += 'src/heartbeat.c'

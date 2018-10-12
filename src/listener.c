@@ -128,7 +128,6 @@ int find_free_connection_index() {
 }
 
 void listener_destroy(listener_t *listener) {
-    printf("Closing listener...\n");
     for (int i = 0; i < num_connections; i++) {
         if (connections[i] == NULL) {
             continue;

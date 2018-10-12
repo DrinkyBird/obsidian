@@ -88,11 +88,11 @@ typedef enum block_e {
 #define MAX(x, y) (((x) > (y)) ? (x) : (y))
 #define MIN(x, y) (((x) < (y)) ? (x) : (y))
 
-#define TOFLOAT(x) (float)(((float)x) / 32.0f)
-#define TOFIXED(x) (int)(((int)x) * 32)
+#define TOFLOAT(x) (float)(x / 32.0f)
+#define TOFIXED(x) (short)(x * 32.0f)
 
-#define FLOATANGLE(x) (float)((float)x * 256.0f / 360.0f)
-#define FIXEDANGLE(x) (unsigned char)((float)x * 256.0f / 360.0f)
+#define FLOATANGLE(x) (float)(x * 360.0f / 256.0f)
+#define FIXEDANGLE(x) (byte)(x * 256.0f / 360.0f)
 
 int rrand(int min, int max);
 

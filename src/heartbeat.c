@@ -5,6 +5,7 @@
 #include "heartbeat.h"
 #include "defs.h"
 #include "player.h"
+#include "config.h"
 
 #define HEARTBEAT_URL "https://www.classicube.net/server/heartbeat"
 static const char *SALT_CHARACTERS = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
@@ -55,9 +56,11 @@ void *heartbeat_run(void *parm) {
     curl_easy_setopt(curl, CURLOPT_VERBOSE, 0L);
     curl_easy_setopt(curl, CURLOPT_URL, HEARTBEAT_URL);
 
+    char *esc_name = curl_easy_escape(curl, configuration->name, strlen(configuration->name));
+
     char fields[512];
     snprintf(fields, sizeof(fields), "name=%s&port=%d&users=%d&max=%d&public=true&salt=%s",
-        "name", 25565, data->num_online, data->num_players, salt
+        esc_name, 25565, data->num_online, data->num_players, salt
     );
 
     curl_easy_setopt(curl, CURLOPT_POSTFIELDS, fields);

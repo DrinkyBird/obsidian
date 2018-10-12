@@ -24,4 +24,6 @@ void player_destroy(player_t *player);
 void player_spawn(player_t *player);
 bool player_is_block_admin_only(block_e);
 
+void player_broadcast_movement(player_t *player);
+
 #endif

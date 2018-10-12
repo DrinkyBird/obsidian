@@ -20,7 +20,7 @@ typedef enum tag_e {
 } tag_e;
 
 typedef struct tag_s {
-    const char *name;
+    char *name;
     tag_e type;
 
     union {
@@ -51,12 +51,17 @@ tag_t *nbt_create_string(const char *name, const char *val);
 tag_t *nbt_create_bytearray(const char *name, byte *val, int len);
 tag_t *nbt_copy_bytearray(const char *name, byte *val, int len);
 
+void nbt_destroy(tag_t *tag, bool destroy_values);
+
 void nbt_set_char(tag_t *tag, char b);
 void nbt_set_short(tag_t *tag, short b);
 void nbt_set_int(tag_t *tag, int b);
 void nbt_set_long(tag_t *tag, long long b);
 void nbt_add_tag(tag_t *tag, tag_t *new);
 
+tag_t *nbt_get_tag(tag_t *tag, const char *n);
+
 void nbt_write(tag_t *tag, rw_t *rw);
+tag_t *nbt_read(rw_t *rw, bool named);
 
 #endif

@@ -40,12 +40,28 @@ player_t *player_create(connection_t *conn) {
     player->op = false;
     player->spawned = false;
 
-    players[id] = NULL;
+    players[id] = player;
 
     return player;
 }
 
 void player_destroy(player_t *player) {
+    rw_t *packet = packet_create();
+    rw_write_byte(packet, PACKET_PLAYER_DESPAWN);
+    rw_write_char(packet, player->id);
+
+    for (int i = 0; i < num_players; i++) {
+        player_t *p = players[i];
+
+        if (p == NULL || p == player) {
+            continue;
+        }
+
+        connection_write_rw(p->conn, packet);
+    }
+
+    rw_destroy_and_buffer(packet);
+
     players[player->id] = NULL;
     free(player);
 }
@@ -66,28 +82,19 @@ void player_spawn(player_t *player) {
     rw_write_byte(packet, FIXEDANGLE(player->pitch));
     packet_send(packet, player->conn);
 
-    packet = packet_create();
-    rw_write_byte(packet, PACKET_PLAYER_POS_AND_ANGLE);
-    rw_write_char(packet, -1);
-    rw_write_int16be(packet, TOFIXED(player->x));
-    rw_write_int16be(packet, TOFIXED(player->y));
-    rw_write_int16be(packet, TOFIXED(player->z));
-    rw_write_byte(packet, FIXEDANGLE(player->yaw));
-    rw_write_byte(packet, FIXEDANGLE(player->pitch));
-    packet_send(packet, player->conn);
-
     /* will be broadcasted to already existing players */
     rw_t *broadcastpacket = packet_create();
-    rw_write_char(packet, player->id);
-    rw_write_mc_str(packet, player->name);
-    rw_write_int16be(packet, TOFIXED(player->x));
-    rw_write_int16be(packet, TOFIXED(player->y));
-    rw_write_int16be(packet, TOFIXED(player->z));
-    rw_write_byte(packet, FIXEDANGLE(player->yaw));
-    rw_write_byte(packet, FIXEDANGLE(player->pitch));
+    rw_write_byte(broadcastpacket, PACKET_PLAYER_SPAWN);
+    rw_write_char(broadcastpacket, player->id);
+    rw_write_mc_str(broadcastpacket, player->name);
+    rw_write_int16be(broadcastpacket, TOFIXED(player->x));
+    rw_write_int16be(broadcastpacket, TOFIXED(player->y));
+    rw_write_int16be(broadcastpacket, TOFIXED(player->z));
+    rw_write_byte(broadcastpacket, FIXEDANGLE(player->yaw));
+    rw_write_byte(broadcastpacket, FIXEDANGLE(player->pitch));
 
     for (int i = 0; i < num_players; i++) {
-        if (players[i] == NULL) {
+        if (players[i] == NULL || players[i] == player) {
             continue;
         }
 
@@ -148,4 +155,27 @@ int playerman_get_num_online() {
     }
 
     return n;
+}
+
+void player_broadcast_movement(player_t *player) {
+    rw_t *packet = packet_create();
+    rw_write_byte(packet, PACKET_PLAYER_POS_AND_ANGLE);
+    rw_write_char(packet, player->id);
+    rw_write_int16be(packet, TOFIXED(player->x));
+    rw_write_int16be(packet, TOFIXED(player->y));
+    rw_write_int16be(packet, TOFIXED(player->z));
+    rw_write_byte(packet, FIXEDANGLE(player->yaw));
+    rw_write_byte(packet, FIXEDANGLE(player->pitch));
+
+    for (int i = 0; i < num_players; i++) {
+        player_t *p = players[i];
+
+        if (p == NULL || p == player) {
+            continue;
+        }
+
+        connection_write_rw(p->conn, packet);
+    }
+
+    rw_destroy_and_buffer(packet);
 }

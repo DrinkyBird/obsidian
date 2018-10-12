@@ -8,7 +8,8 @@
 
 config_t *configuration;
 
-static int config_handle_ini(void* user, const char* section, const char* name, const char* value);
+static int config_handle_ini(void* user, const char* section, const char* name, const char* value, int line);
+static bool boolify(char *c, int line);
 
 bool config_parse() {
     configuration = malloc(sizeof(config_t));
@@ -21,7 +22,7 @@ bool config_parse() {
     return true;
 }
 
-int config_handle_ini(void* user, const char* section, const char* name, const char* value) {
+int config_handle_ini(void* user, const char* section, const char* name, const char* value, int line) {
     if (strcasecmp(section, "server") == 0) {
         if (strcasecmp(name, "port") == 0) {
             configuration->port = (unsigned short) strtoul(value, NULL, 10);
@@ -32,7 +33,7 @@ int config_handle_ini(void* user, const char* section, const char* name, const c
         } else if (strcasecmp(name, "motd") == 0) {
             COPYSTR(configuration->motd, value);
         } else if (strcasecmp(name, "verifynames") == 0) {
-            configuration->verifynames = (bool) strtoul(value, NULL, 10);
+            configuration->verifynames = boolify(value, line);
         }
     }
 
@@ -49,4 +50,15 @@ int config_handle_ini(void* user, const char* section, const char* name, const c
     }
 
     return 1;
+}
+
+bool boolify(char *c, int line) {
+    if (strcasecmp(c, "true") == 0 || strcasecmp(c, "yes") == 0 || strcasecmp(c, "on") == 0) {
+        return true;
+    } else if (strcasecmp(c, "false") == 0 || strcasecmp(c, "no") == 0 || strcasecmp(c, "off") == 0) {
+        return false;
+    }
+
+    fprintf(stderr, "settings.ini: \"%s\" on line %d is not a valid boolean value, assuming false\n", c, line);
+    return false;
 }

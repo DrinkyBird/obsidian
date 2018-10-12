@@ -61,6 +61,31 @@ tag_t *nbt_copy_bytearray(const char *name, byte *val, int len) {
     return nbt_create_bytearray(name, a, len);
 }
 
+void nbt_destroy(tag_t *tag, bool destroy_values) {
+    if (tag->type == tag_list || tag->type == tag_compound) {
+        for (int i = 0; i < tag->array_size; i++) {
+            tag_t *t = tag->list[i];
+            nbt_destroy(t, destroy_values);
+        }
+    }
+
+    if (!tag->no_header) {
+        if (tag->name != NULL) {
+            free(tag->name);
+        }
+    }
+
+    if (tag->type == tag_string && destroy_values) {
+        free(tag->str);
+    }
+
+    if (tag->type == tag_byte_array && destroy_values) {
+        free(tag->pb);
+    }
+
+    free(tag);
+}
+
 void nbt_write(tag_t *tag, rw_t *rw) {
     if (!tag->no_header) {
         rw_write_byte(rw, tag->type);
@@ -179,4 +204,113 @@ void nbt_add_tag(tag_t *tag, tag_t *new) {
     }
 
     tag->list[i] = new;
+}
+
+tag_t *nbt_read(rw_t *rw, bool named) {
+    tag_t *t = tag_create_empty();
+    t->type = rw_read_byte(rw);
+
+    if (named) {
+        int namelen = rw_read_int16be(rw);
+        t->name = malloc(namelen + 1);
+        rw_read(rw, t->name, namelen);
+        t->name[namelen] = 0;
+    }
+
+    switch (t->type) {
+        case tag_end:
+            break;
+
+        case tag_byte:
+            t->b = rw_read_char(rw);
+            break;
+
+        case tag_short:
+            t->s = rw_read_int16be(rw);
+            break;
+
+        case tag_int:
+            t->i = rw_read_int32be(rw);
+            break;
+
+        case tag_float:
+            t->f = rw_read_floatbe(rw);
+            break;
+
+        case tag_double:
+            t->f = rw_read_doublebe(rw);
+            break;
+
+        case tag_byte_array:
+            t->array_size = rw_read_int32be(rw);
+            t->pb = malloc(t->array_size);
+            rw_read(rw, t->pb, t->array_size);
+
+            break;
+
+        case tag_string:
+            t->array_size = rw_read_int16be(rw);
+            t->str = malloc(t->array_size);
+            rw_read(rw, t->str, t->array_size);
+
+            break;
+
+        case tag_list:
+            t->array_type = (tag_e) rw_read_byte(rw);
+            t->array_size = rw_read_int32be(rw);
+
+            break;
+
+        case tag_compound:
+            t->array_size = 0;
+            tag_t *subtag;
+            int i = 0;
+            int off = rw_tell(rw);
+
+            /* count how many sub-tags we have */
+            while ((subtag = nbt_read(rw, true))->type != tag_end) {
+                t->array_size++;
+            }            
+
+            t->list = calloc(t->array_size, sizeof(*t->list));
+
+            rw_seek(rw, off, rw_set);
+
+            while ((subtag = nbt_read(rw, true))->type != tag_end) {
+                t->list[i] = subtag;
+                i++;
+            }
+
+            break;
+
+        default:
+            printf("attempt to read unknown tag type %d\n", t->type);
+            
+            nbt_destroy(t, true);
+
+            return NULL;
+    }
+
+    return t;
+}
+
+tag_t *nbt_get_tag(tag_t *tag, const char *n) {
+    if (tag->type != tag_compound) {
+        return NULL;
+    }
+
+    for (int i = 0; i < tag->array_size; i++) {
+        tag_t *t = tag->list[i];
+        if (t == NULL) {
+            continue;
+        }
+
+        if (strcmp(t->name, n) == 0) {
+            return t;
+        }
+    }
+
+    fprintf(stderr, "tag %s has no sub-tag %s\n", tag->name, n);
+
+    return NULL;
 }

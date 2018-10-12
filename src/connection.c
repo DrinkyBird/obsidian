@@ -243,6 +243,8 @@ bool connection_handle_packet(connection_t *conn, unsigned char id, rw_t* rw) {
             conn->player->yaw = FLOATANGLE(rw_read_byte(rw));
             conn->player->pitch = FLOATANGLE(rw_read_byte(rw));
 
+            player_broadcast_movement(conn->player);
+
             break;
         }
 
@@ -286,6 +288,15 @@ nofix:
             }
 
             map_set(map, x, y, z, block);
+
+            rw_t *broadcastpacket = packet_create();
+            rw_write_byte(broadcastpacket, PACKET_SET_BLOCK_SERVER);
+            rw_write_int16be(broadcastpacket, x);
+            rw_write_int16be(broadcastpacket, y);
+            rw_write_int16be(broadcastpacket, z);
+            rw_write_byte(broadcastpacket, (byte)block);
+            broadcast_rw(broadcastpacket);
+            rw_destroy_and_buffer(broadcastpacket);
 
             break;
         }
@@ -369,7 +380,7 @@ void connection_write_rw(connection_t *conn, rw_t *rw) {
 
     byte *buf = malloc(originaloffset);
     rw_read(rw, buf, originaloffset);
-    rw_write(conn->out_rw, buf, originaloffset);
+    connection_write(conn, buf, originaloffset);
 
     free(buf);
     rw_seek(rw, originaloffset, rw_set);
