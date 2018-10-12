@@ -128,10 +128,6 @@ map_t *map_load(const char *name) {
         in = inf;
         insize = flen;
     }
-    
-    f = fopen("test.nbt", "wb");
-    fwrite(in, insize, 1, f);
-    fclose(f);
 
     rw_t *rw = rw_create(in, insize);
     tag_t *root = nbt_read(rw, true);
