@@ -28,3 +28,11 @@ void platform_tick() {
 void platform_shutdown() {
     WSACleanup();
 }
+
+const char *platform_get_name() {
+    return "Windows NT";
+}
+
+const char *platform_get_version() {
+    return "";
+}

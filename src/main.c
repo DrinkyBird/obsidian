@@ -26,6 +26,8 @@ static void handle_sigint(int);
 
 static bool running = true;
 
+static char *full_name = NULL;
+
 static const struct option long_options[] = {
     { "port", required_argument, NULL, 0 },
     { "max-players", required_argument, NULL, 0 },
@@ -58,6 +60,10 @@ int main(int argc, char *argv[]) {
     srand(time(NULL));
     
     platform_init();
+
+    full_name = malloc(64);
+    snprintf(full_name, 64, "miniclassic on %s %s", platform_get_name(), platform_get_version());
+    printf("%s\n", full_name);
 
     int width = configuration->width;
     int depth = configuration->depth;
@@ -125,4 +131,8 @@ void handle_sigint(int d) {
 
 int rrand(int min, int max) {
     return (rand()%(max-min))+min;
+}
+
+const char *app_get_full_name() {
+    return full_name;
 }

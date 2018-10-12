@@ -96,4 +96,6 @@ typedef enum block_e {
 
 int rrand(int min, int max);
 
+const char *app_get_full_name();
+
 #endif

@@ -57,10 +57,11 @@ void *heartbeat_run(void *parm) {
     curl_easy_setopt(curl, CURLOPT_URL, HEARTBEAT_URL);
 
     char *esc_name = curl_easy_escape(curl, configuration->name, strlen(configuration->name));
+    char *esc_app_name = curl_easy_escape(curl, app_get_full_name(), strlen(app_get_full_name()));
 
     char fields[512];
-    snprintf(fields, sizeof(fields), "name=%s&port=%d&users=%d&max=%d&public=true&salt=%s",
-        esc_name, 25565, data->num_online, data->num_players, salt
+    snprintf(fields, sizeof(fields), "name=%s&port=%d&users=%d&max=%d&public=true&salt=%s&software=%s",
+        esc_name, 25565, data->num_online, data->num_players, salt, esc_app_name
     );
 
     curl_easy_setopt(curl, CURLOPT_POSTFIELDS, fields);

@@ -196,7 +196,7 @@ bool connection_handle_packet(connection_t *conn, unsigned char id, rw_t* rw) {
 
                 packet = packet_create();
                 rw_write_byte(packet, PACKET_EXTINFO);
-                rw_write_mc_str(packet, "miniclassic");
+                rw_write_mc_str(packet, app_get_full_name());
                 rw_write_int16be(packet, numexts);
                 packet_send(packet, conn);
 

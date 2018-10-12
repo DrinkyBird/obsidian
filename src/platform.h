@@ -14,4 +14,7 @@ void platform_init();
 void platform_tick();
 void platform_shutdown();
 
+const char *platform_get_name();
+const char *platform_get_version();
+
 #endif
