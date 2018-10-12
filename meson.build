@@ -1,7 +1,6 @@
-project('miniclassic', 'c')
+project('miniclassic', 'c', version: '0.1a')
 
 cc = meson.get_compiler('c')
-cflags = []
 is_mingw = (build_machine.system() == 'windows' and cc.get_id() == 'gcc')
 
 src = [
@@ -36,6 +35,11 @@ endif
 
 configure_file(input: 'settings.ini', output: 'settings.ini', copy: true)
 
+version_conf = configuration_data()
+version_conf.set('version', meson.project_version())
+configure_file(input: 'version.h.in', output: 'version.h', configuration: version_conf)
+
+
 if build_machine.system() == 'windows'
     deps += cc.find_library('ws2_32')
 
@@ -50,4 +54,6 @@ elif build_machine.system() == 'linux'
     ]
 endif
 
-executable('miniclassic', src, dependencies: deps, c_args: cflags)
+builddir_inc = include_directories('.')
+
+executable('miniclassic', src, dependencies: deps, include_directories: builddir_inc)

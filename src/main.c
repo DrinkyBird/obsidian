@@ -13,6 +13,7 @@
 #include "heartbeat.h"
 #include "config.h"
 #include "platform.h"
+#include "version.h"
 
 #define IS_OPT(n) (strcmp(long_options[option_index].name, n) == 0) 
 
@@ -31,11 +32,19 @@ static char *full_name = NULL;
 static const struct option long_options[] = {
     { "port", required_argument, NULL, 0 },
     { "max-players", required_argument, NULL, 0 },
+    { "version", no_argument, NULL, 0 },
     {NULL, no_argument, NULL, 0}
 };
 
 int main(int argc, char *argv[]) {
     int c, option_index;
+
+    srand(time(NULL));
+    
+    platform_init();
+
+    full_name = malloc(64);
+    snprintf(full_name, 64, "miniclassic v%s on %s %s", VERSION_STR, platform_get_name(), platform_get_version());
 
     if (!config_parse()) {
         return 1;
@@ -44,6 +53,11 @@ int main(int argc, char *argv[]) {
     while ((c = getopt_long(argc, argv, "", &long_options, &option_index)) != -1) {
         switch (c) {
             case 0: {
+                if (IS_OPT("version")) {
+                    printf("%s\n", VERSION_STR);
+                    return 0;
+                }
+
                 if (IS_OPT("port")) {
                     configuration->port = (unsigned short) strtoul(optarg, NULL, 10);
                 }
@@ -57,12 +71,6 @@ int main(int argc, char *argv[]) {
         }
     }
 
-    srand(time(NULL));
-    
-    platform_init();
-
-    full_name = malloc(64);
-    snprintf(full_name, 64, "miniclassic on %s %s", platform_get_name(), platform_get_version());
     printf("%s\n", full_name);
 
     int width = configuration->width;
