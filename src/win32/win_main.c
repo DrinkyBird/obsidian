@@ -3,6 +3,7 @@
 #include "sane_windows.h"
 #include "../platform.h"
 #include "../player.h"
+#include "version.h"
 
 #define WINVER_SIZE 16
 
@@ -36,7 +37,7 @@ void platform_tick() {
 
     const char *plural = (online == 1 ? "" : "s");
     char buf[128];
-    snprintf(buf, sizeof(buf), "miniclassic - %d player%s online", online, plural);
+    snprintf(buf, sizeof(buf), "miniclassic v%s - %d player%s online", VERSION_STR, online, plural);
 
     SetConsoleTitleA(buf);
 }
