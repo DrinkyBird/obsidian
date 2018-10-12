@@ -5,7 +5,7 @@ cc = meson.get_compiler('c')
 src = [
     'src/ini.c',
     'src/md5.c',
-    
+
     'src/config.c',
     'src/connection.c',
     'src/cpe.c',
@@ -21,8 +21,8 @@ src = [
 ]
 
 deps = [
-    dependency('threads', required: true, static: true),
-    dependency('zlib', required: true, static: true)
+    dependency('threads', required: true),
+    dependency('zlib', required: true)
 ]
 
 add_global_arguments('-DINI_HANDLER_LINENO', language: 'c')
