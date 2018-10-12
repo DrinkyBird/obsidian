@@ -34,9 +34,9 @@ void platform_init() {
 void platform_tick() {
     int online = playerman_get_num_online();
 
-    char plural = (online == 1 ? '' : 's');
+    const char *plural = (online == 1 ? "" : "s");
     char buf[128];
-    snprintf(buf, sizeof(buf), "miniclassic - %d player%c online", online, plural);
+    snprintf(buf, sizeof(buf), "miniclassic - %d player%s online", online, plural);
 
     SetConsoleTitleA(buf);
 }
