@@ -21,8 +21,6 @@ void platform_init() {
         exit(0);
     }
 
-    puts("Successfully initialised Winsock.\n");
-
     OSVERSIONINFOA ver;
     memset(&ver, 0, sizeof(ver));
     ver.dwOSVersionInfoSize = sizeof(OSVERSIONINFOA);
