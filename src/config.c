@@ -4,12 +4,12 @@
 #include "config.h"
 
 #define INI_MATCH(s, n) ((strcasecmp(section, s) == 0) && (strcasecmp(name, n) == 0))
-#define COPYSTR(d, s) d = malloc(strlen(s)); strcpy(d, s);
+#define COPYSTR(d, s) d = malloc(strlen(s)); strcpy((char *)d, s);
 
 config_t *configuration;
 
 static int config_handle_ini(void* user, const char* section, const char* name, const char* value, int line);
-static bool boolify(char *c, int line);
+static bool boolify(const char *c, int line);
 
 bool config_parse() {
     configuration = malloc(sizeof(config_t));
@@ -52,7 +52,7 @@ int config_handle_ini(void* user, const char* section, const char* name, const c
     return 1;
 }
 
-bool boolify(char *c, int line) {
+bool boolify(const char *c, int line) {
     if (strcasecmp(c, "true") == 0 || strcasecmp(c, "yes") == 0 || strcasecmp(c, "on") == 0) {
         return true;
     } else if (strcasecmp(c, "false") == 0 || strcasecmp(c, "no") == 0 || strcasecmp(c, "off") == 0) {

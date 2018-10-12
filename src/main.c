@@ -50,7 +50,7 @@ int main(int argc, char *argv[]) {
         return 1;
     }
 
-    while ((c = getopt_long(argc, argv, "", &long_options, &option_index)) != -1) {
+    while ((c = getopt_long(argc, argv, "", (const struct option *)&long_options, &option_index)) != -1) {
         switch (c) {
             case 0: {
                 if (IS_OPT("version")) {

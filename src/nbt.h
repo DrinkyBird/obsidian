@@ -31,7 +31,7 @@ typedef struct tag_s {
         float f;
         double d;
         byte *pb;
-        const char *str;
+        char *str;
         struct tag_s **list;
     };
 

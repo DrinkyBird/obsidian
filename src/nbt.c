@@ -20,7 +20,7 @@ tag_t *tag_create_empty() {
 
 tag_t *nbt_create(const char *name) {
     tag_t *t = tag_create_empty();
-    t->name = name;
+    t->name = (char *)name;
     t->no_header = false;
     return t;
 }
@@ -161,7 +161,7 @@ void write_len_str(rw_t *rw, const char *s) {
     unsigned short len = (unsigned short) strlen(s);
 
     rw_write_int16be(rw, len);
-    rw_write(rw, s, len);
+    rw_write(rw, (void *)s, len);
 }
 
 void nbt_set_char(tag_t *tag, char b) {

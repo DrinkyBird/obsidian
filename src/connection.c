@@ -533,8 +533,8 @@ bool connection_verify_key(connection_t *conn) {
     char digest[33];
 
     MD5Init(&md);
-    MD5Update(&md, heartbeat_get_salt(), SALT_LENGTH);
-    MD5Update(&md, conn->name, strlen(conn->name));
+    MD5Update(&md, (const byte *)heartbeat_get_salt(), SALT_LENGTH);
+    MD5Update(&md, (const byte *)conn->name, strlen(conn->name));
     MD5Final(output, &md);
 
     for (int i = 0; i < 16; i++) {
