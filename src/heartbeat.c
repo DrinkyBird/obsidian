@@ -27,7 +27,7 @@ typedef struct heartbeat_data_s {
 } heartbeat_data_t;
 
 void heartbeat_tick() {
-    if (current_tick - last_heartbeat < HEARTBEAT_RATE) {
+    if (current_tick - last_heartbeat < HEARTBEAT_RATE || !configuration->should_heartbeat) {
         return;
     }
 

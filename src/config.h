@@ -7,6 +7,7 @@ typedef struct config_s {
     unsigned short port;
     int maxplayers;
     bool verifynames;
+    bool should_heartbeat;
 
     const char *name, *motd;
 
