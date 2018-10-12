@@ -1,4 +1,4 @@
-project('miniclassic', 'c', version: '0.1a')
+project('miniclassic', 'c', version: '0.1a', meson_version: '>=0.47.0')
 
 cc = meson.get_compiler('c')
 is_mingw = (build_machine.system() == 'windows' and cc.get_id() == 'gcc')
