@@ -77,10 +77,15 @@ void connection_destroy(connection_t *conn) {
     rw_destroy(conn->out_rw);
     free(conn->out_buf);
     free(conn);
+
+    /* save the map on empty server */
+    if (listener_get_active_connections() == 0) {
+        map_save(map);
+    }
 }
 
 void connection_tick(connection_t *conn) {
-    if (!conn->is_connected) {
+    if (!conn->is_connected || !conn->fd_open) {
         return;
     }
     
@@ -324,7 +329,7 @@ void connection_flush_out(connection_t *conn) {
 
     int sendflags = 0;
 #ifdef __linux__
-    sendflags &= MSG_NOSIGNAL;
+    sendflags |= MSG_NOSIGNAL;
 #endif
 
     int l;

@@ -1,13 +1,18 @@
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
+#include <zlib.h>
 #include "map.h"
+#include "rw.h"
+#include "nbt.h"
 
 int map_get_block_index(map_t *, int, int, int);
 bool map_pos_valid(map_t *, int, int, int);
 
-map_t *map_create(int width, int depth, int height) {
+map_t *map_create(const char *name, int width, int depth, int height) {
     map_t *map = malloc(sizeof(*map));
 
+    map->name = name;
     map->width = width;
     map->depth = depth;
     map->height = height;

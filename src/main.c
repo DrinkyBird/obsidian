@@ -63,8 +63,9 @@ int main(int argc, char *argv[]) {
     int depth = configuration->depth;
     int height = configuration->height;
     printf("Creating map with size [%d, %d, %d]\n", width, depth, height);
-    map = map_create(width, depth, height);
+    map = map_create(configuration->map_name, width, depth, height);
     map_generate(map);
+    map_save(map);
 
 #ifdef ENABLE_HEARTBEAT
     heartbeat_init();

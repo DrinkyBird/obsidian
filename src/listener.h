@@ -17,4 +17,6 @@ void listener_tick(listener_t *listener);
 void broadcast_rw(rw_t *rw);
 void broadcast_msg(const char *msg);
 
+int listener_get_active_connections();
+
 #endif // __LISTENER_H

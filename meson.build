@@ -15,7 +15,9 @@ src = [
     'src/cpe.c',
     'src/md5.c',
     'src/ini.c',
-    'src/config.c'
+    'src/config.c',
+    'src/nbt.c',
+    'src/mapsave.c'
 ]
 
 deps = [

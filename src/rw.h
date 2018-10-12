@@ -44,6 +44,11 @@ int rw_read_int32be(rw_t *rw);
 unsigned int rw_read_uint32le(rw_t *rw);
 unsigned int rw_read_uint32be(rw_t *rw);
 
+float rw_read_floatle(rw_t *rw);
+float rw_read_floatbe(rw_t *rw);
+double rw_read_doublele(rw_t *rw);
+double rw_read_doublebe(rw_t *rw);
+
 const char *rw_read_mc_str(rw_t *rw);
 
 /***************************** writing functions *****************************/
@@ -58,6 +63,11 @@ int rw_write_int32le(rw_t *rw, int c);
 int rw_write_int32be(rw_t *rw, int c);
 int rw_write_uint32le(rw_t *rw, unsigned int c);
 int rw_write_uint132be(rw_t *rw, unsigned int c);
+
+int rw_write_floatle(rw_t *rw, float c);
+int rw_write_floatbe(rw_t *rw, float c);
+int rw_write_doublele(rw_t *rw, double c);
+int rw_write_doublebe(rw_t *rw, double c);
 
 int rw_write_mc_str(rw_t *rw, const char *str);
 

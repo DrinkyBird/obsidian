@@ -10,6 +10,7 @@ typedef struct config_s {
 
     const char *name, *motd;
 
+    const char *map_name;
     int width, depth, height; 
 } config_t;
 

@@ -159,3 +159,15 @@ void broadcast_msg(const char *msg) {
 
     rw_destroy_and_buffer(packet);
 }
+
+int listener_get_active_connections() {
+    int n = 0;
+
+    for (int i = 0; i < num_connections; i++) {
+        if (connections[i] != NULL) {
+            n++;
+        }
+    }
+
+    return n;
+}

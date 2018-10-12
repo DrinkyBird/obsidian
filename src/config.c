@@ -4,6 +4,7 @@
 #include "config.h"
 
 #define INI_MATCH(s, n) ((strcasecmp(section, s) == 0) && (strcasecmp(name, n) == 0))
+#define COPYSTR(d, s) d = malloc(strlen(s)); strcpy(d, s);
 
 config_t *configuration;
 
@@ -27,16 +28,18 @@ int config_handle_ini(void* user, const char* section, const char* name, const c
         } else if (strcasecmp(name, "players") == 0) {
             configuration->maxplayers = (int) strtoul(value, NULL, 10);
         } else if (strcasecmp(name, "name") == 0) {
-            configuration->name = value;
+            COPYSTR(configuration->name, value);
         } else if (strcasecmp(name, "motd") == 0) {
-            configuration->motd = value;
+            COPYSTR(configuration->motd, value);
         } else if (strcasecmp(name, "verifynames") == 0) {
             configuration->verifynames = (bool) strtoul(value, NULL, 10);
         }
     }
 
     else if (strcasecmp(section, "world") == 0) {
-        if (strcasecmp(name, "width") == 0) {
+        if (strcasecmp(name, "name") == 0) {
+            COPYSTR(configuration->map_name, value);
+        } else if (strcasecmp(name, "width") == 0) {
             configuration->width = (int) strtoul(value, NULL, 10);
         } else if (strcasecmp(name, "depth") == 0) {
             configuration->depth = (int) strtoul(value, NULL, 10);

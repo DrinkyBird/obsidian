@@ -208,6 +208,30 @@ unsigned int rw_read_uint32be(rw_t *rw) {
     return endian_tobig32(c);
 }
 
+float rw_read_floatle(rw_t *rw){
+    float c; CHECK_SIZE();
+    rw_read(rw, &c, sizeof(c));
+    return endian_tolittlef(c);
+}
+
+float rw_read_floatbe(rw_t *rw){
+    float c; CHECK_SIZE();
+    rw_read(rw, &c, sizeof(c));
+    return endian_tobigf(c);
+}
+
+double rw_read_doublele(rw_t *rw) {
+    double c; CHECK_SIZE();
+    rw_read(rw, &c, sizeof(c));
+    return endian_tolittled(c);
+}
+
+double rw_read_doublebe(rw_t *rw) {
+    double c; CHECK_SIZE();
+    rw_read(rw, &c, sizeof(c));
+    return endian_tobigd(c);
+}
+
 
 int rw_write_char(rw_t *rw, char c) {
     return rw_write(rw, &c, sizeof(c));
@@ -238,12 +262,12 @@ int rw_write_uint16be(rw_t *rw, unsigned short c) {
 }
 
 int rw_write_int32le(rw_t *rw, int c) {
-    short a = endian_tolittle32(c);
+    int a = endian_tolittle32(c);
     return rw_write(rw, &a, sizeof(a));
 }
 
 int rw_write_int32be(rw_t *rw, int c) {
-    short a = endian_tobig32(c);
+    int a = endian_tobig32(c);
     return rw_write(rw, &a, sizeof(a));
 }
 
@@ -254,5 +278,25 @@ int rw_write_uint32le(rw_t *rw, unsigned int c) {
 
 int rw_write_uint32be(rw_t *rw, unsigned int c) {
     unsigned short a = endian_tobig32(c);
+    return rw_write(rw, &a, sizeof(a));
+}
+
+int rw_write_floatle(rw_t *rw, float c) {
+    float a = endian_tolittlef(c);
+    return rw_write(rw, &a, sizeof(a));
+}
+
+int rw_write_floatbe(rw_t *rw, float c) {
+    float a = endian_tobigf(c);
+    return rw_write(rw, &a, sizeof(a));
+}
+
+int rw_write_doublele(rw_t *rw, double c) {
+    double a = endian_tolittled(c);
+    return rw_write(rw, &a, sizeof(a));
+}
+
+int rw_write_doublebe(rw_t *rw, double c) {
+    double a = endian_tobigd(c);
     return rw_write(rw, &a, sizeof(a));
 }

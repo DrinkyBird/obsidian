@@ -4,15 +4,29 @@
 #include <stdbool.h>
 #include "defs.h"
 
+#define MAPFILE_MAGIC "HARM"
+#define MAPFILE_VERSION 0
+
 typedef struct map_s {
+    const char *name;
     int width, depth, height;
     byte *blocks;
 } map_t;
 
-map_t *map_create(int width, int depth, int height);
+typedef struct mapsave_s {
+    char _magic[4];
+    byte _file_version;
+
+    const char *name;
+    int width, depth, height;
+} mapsave_t;
+
+map_t *map_create(const char *name, int width, int depth, int height);
 
 block_e map_get(map_t *map, int x, int y, int z);
 bool map_set(map_t *map, int x, int y, int z, block_e block);
+
+void map_save(map_t *map);
 
 void map_generate(map_t *map);
 
