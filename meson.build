@@ -1,22 +1,23 @@
 project('miniclassic', 'c', version: '0.1a', meson_version: '>=0.47.0')
 
 cc = meson.get_compiler('c')
-is_mingw = (build_machine.system() == 'windows' and cc.get_id() == 'gcc')
 
 src = [
-    'src/main.c',
-    'src/listener.c',
+    'src/ini.c',
+    'src/md5.c',
+    
+    'src/config.c',
     'src/connection.c',
-    'src/rw.c',
+    'src/cpe.c',
+    'src/heartbeat.c',
+    'src/listener.c',
+    'src/main.c',
     'src/map.c',
     'src/mapgz.c',
-    'src/player.c',
-    'src/cpe.c',
-    'src/md5.c',
-    'src/ini.c',
-    'src/config.c',
+    'src/mapsave.c',
     'src/nbt.c',
-    'src/mapsave.c'
+    'src/player.c',
+    'src/rw.c',
 ]
 
 deps = [
@@ -24,8 +25,8 @@ deps = [
     dependency('zlib', required: true, static: true)
 ]
 
-
 add_global_arguments('-DINI_HANDLER_LINENO', language: 'c')
+
 if get_option('enable_heartbeat')
     deps += dependency('libcurl', required: true)
     src += 'src/heartbeat.c'
