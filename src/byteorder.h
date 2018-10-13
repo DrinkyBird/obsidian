@@ -21,6 +21,20 @@ static inline uint32_t endian_swap32(uint32_t x) {
     return (uint32_t)((x << 24) | ((x << 8) & 0x00FF0000) | ((x >> 8) & 0x0000FF00) | (x >> 24));
 }
 
+static inline uint64_t endian_swap64(uint64_t x) {
+    uint32_t hi, lo;
+
+    lo = (uint32_t)(x & 0xFFFFFFFF);
+    x >>= 32;
+    hi = (uint32_t)(x & 0xFFFFFFFF);
+    
+    x = (uint32_t) endian_swap32(lo);
+    x <<= 32;
+    x |= (uint32_t) endian_swap32(hi);
+    
+    return x;
+}
+
 static inline double endian_swapd(double x) {
     double r;
     char *ftc = (char*)&x;
@@ -67,6 +81,14 @@ static inline uint32_t endian_tolittle32(uint32_t x){
 #endif
 }
 
+static inline uint64_t endian_tolittle64(uint64_t x){
+#ifdef ENDIAN_BIG
+    return endian_swap64(x);
+#else
+    return x;
+#endif
+}
+
 static inline float endian_tolittlef(float x){
 #ifdef ENDIAN_BIG
     return endian_swapf(x);
@@ -94,6 +116,14 @@ static inline uint16_t endian_tobig16(uint16_t x) {
 static inline uint32_t endian_tobig32(uint32_t x) {
 #ifdef ENDIAN_LITTLE
     return endian_swap32(x);
+#else
+    return x;
+#endif
+}
+
+static inline uint64_t endian_tobig64(uint64_t x) {
+#ifdef ENDIAN_LITTLE
+    return endian_swap64(x);
 #else
     return x;
 #endif

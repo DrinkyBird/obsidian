@@ -43,6 +43,10 @@ int rw_read_int32le(rw_t *rw);
 int rw_read_int32be(rw_t *rw);
 unsigned int rw_read_uint32le(rw_t *rw);
 unsigned int rw_read_uint32be(rw_t *rw);
+long long rw_read_int64le(rw_t *rw);
+long long rw_read_int64be(rw_t *rw);
+unsigned long long rw_read_uint64le(rw_t *rw);
+unsigned long long rw_read_uint64be(rw_t *rw);
 
 float rw_read_floatle(rw_t *rw);
 float rw_read_floatbe(rw_t *rw);
@@ -62,7 +66,11 @@ int rw_write_uint16be(rw_t *rw, unsigned short c);
 int rw_write_int32le(rw_t *rw, int c);
 int rw_write_int32be(rw_t *rw, int c);
 int rw_write_uint32le(rw_t *rw, unsigned int c);
-int rw_write_uint132be(rw_t *rw, unsigned int c);
+int rw_write_uint32be(rw_t *rw, unsigned int c);
+int rw_write_int64le(rw_t *rw, long long c);
+int rw_write_int64be(rw_t *rw, long long c);
+int rw_write_uint64le(rw_t *rw, unsigned long long c);
+int rw_write_uint64be(rw_t *rw, unsigned long long c);
 
 int rw_write_floatle(rw_t *rw, float c);
 int rw_write_floatbe(rw_t *rw, float c);

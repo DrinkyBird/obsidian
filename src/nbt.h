@@ -64,4 +64,6 @@ tag_t *nbt_get_tag(tag_t *tag, const char *n);
 void nbt_write(tag_t *tag, rw_t *rw);
 tag_t *nbt_read(rw_t *rw, bool named);
 
+void nbt_dump(tag_t *tag, int indent);
+
 #endif

@@ -7,6 +7,10 @@
 static void write_len_str(rw_t *rw, const char *s);
 
 static tag_t *tag_create_empty();
+static const char *tag_get_type_name(tag_e type);
+static int tag_get_actual_num_entries(tag_t *t);
+
+static tag_e expected = tag_end;
 
 tag_t *tag_create_empty() {
     tag_t *t = malloc(sizeof(tag_t));
@@ -112,7 +116,7 @@ void nbt_write(tag_t *tag, rw_t *rw) {
             break;
 
         case tag_long:
-            rw_write_int16be(rw, tag->l);
+            rw_write_int64be(rw, tag->l);
             break;
 
         case tag_float:
@@ -208,13 +212,18 @@ void nbt_add_tag(tag_t *tag, tag_t *new) {
 
 tag_t *nbt_read(rw_t *rw, bool named) {
     tag_t *t = tag_create_empty();
-    t->type = rw_read_byte(rw);
 
     if (named) {
-        int namelen = rw_read_int16be(rw);
-        t->name = malloc(namelen + 1);
-        rw_read(rw, t->name, namelen);
-        t->name[namelen] = 0;
+        t->type = rw_read_byte(rw);
+
+        if (t->type != tag_end) {
+            int namelen = rw_read_int16be(rw);
+            t->name = malloc(namelen + 1);
+            rw_read(rw, t->name, namelen);
+            t->name[namelen] = 0;
+        }
+    } else {
+        t->type = expected;
     }
 
     switch (t->type) {
@@ -233,12 +242,16 @@ tag_t *nbt_read(rw_t *rw, bool named) {
             t->i = rw_read_int32be(rw);
             break;
 
+        case tag_long:
+            t->l = rw_read_int64be(rw);
+            break;
+
         case tag_float:
             t->f = rw_read_floatbe(rw);
             break;
 
         case tag_double:
-            t->f = rw_read_doublebe(rw);
+            t->d = rw_read_doublebe(rw);
             break;
 
         case tag_byte_array:
@@ -258,6 +271,13 @@ tag_t *nbt_read(rw_t *rw, bool named) {
         case tag_list:
             t->array_type = (tag_e) rw_read_byte(rw);
             t->array_size = rw_read_int32be(rw);
+            expected = t->array_type;
+
+            t->list = calloc(t->array_size, sizeof(*t->list));
+
+            for (int i = 0; i < t->array_size; i++) {
+                t->list[i] = nbt_read(rw, false);
+            }
 
             break;
 
@@ -284,7 +304,7 @@ tag_t *nbt_read(rw_t *rw, bool named) {
             break;
 
         default:
-            printf("attempt to read unknown tag type %d\n", t->type);
+            printf("attempt to read unknown tag type %d at position 0x%08x\n", t->type, rw_tell(rw));
             
             nbt_destroy(t, true);
 
@@ -313,4 +333,95 @@ tag_t *nbt_get_tag(tag_t *tag, const char *n) {
     fprintf(stderr, "tag %s has no sub-tag %s\n", tag->name, n);
 
     return NULL;
+}
+
+void nbt_dump(tag_t *tag, int indent) {
+    char *indentstr = malloc(indent + 1);
+    for (int i = 0; i < indent; i++) {
+        indentstr[i] = ' ';
+    }
+    indentstr[indent] = 0;
+
+    printf(indentstr);
+    printf(tag_get_type_name(tag->type));
+    printf("(");
+    
+    if (tag->name == NULL) {
+        printf("None");
+    } else {
+        printf("'%s'", tag->name);
+    }
+
+    printf("): ");
+
+    switch (tag->type) {
+        case tag_compound:
+        case tag_list:;
+            int actual_entries = tag_get_actual_num_entries(tag);
+            printf("%d entr%s\n%s{\n", actual_entries, actual_entries == 1 ? "y" : "ies", indentstr);
+
+            for (int i = 0; i < tag->array_size; i++) {
+                tag_t *sub = tag->list[i];
+                if (sub == NULL) continue;
+                nbt_dump(sub, indent + 4);
+            }
+
+            printf("%s}\n", indentstr);
+            break;
+
+        case tag_string:
+            printf("'%s'\n", tag->str); break;
+
+        case tag_byte: printf("%d\n", tag->b); break;
+        case tag_short: printf("%d\n", tag->s); break;
+        case tag_int: printf("%d\n", tag->i); break;
+        case tag_long: printf("%lld\n", tag->l); break;
+        case tag_float: printf("%f\n", tag->f); break;
+        case tag_double: printf("%f\n", tag->d); break;
+        case tag_byte_array: printf("[%d bytes]\n", tag->array_size); break;
+
+        default: printf("\n"); break;
+    }
+
+    free(indentstr);
+}
+
+const char *tag_get_type_name(tag_e type) {
+    switch (type) {
+        case tag_end:
+            return "TAG_End";
+        case tag_byte:
+            return "TAG_Byte";
+        case tag_short:
+            return "TAG_Short";
+        case tag_int:
+            return "TAG_Int";
+        case tag_long:
+            return "TAG_Long";
+        case tag_float:
+            return "TAG_Float";
+        case tag_double:
+            return "TAG_Double";
+        case tag_byte_array:
+            return "TAG_Byte_Array";
+        case tag_string:
+            return "TAG_String";
+        case tag_list:
+            return "TAG_List";
+        case tag_compound:
+            return "TAG_Compound";
+    }
+    return "Unknown";
+}
+
+int tag_get_actual_num_entries(tag_t *t) {
+    int n = 0;
+
+    for (int i = 0; i < t->array_size; i++) {
+        if (t->list[i] != NULL) {
+            n++;
+        }
+    }
+
+    return n;
 }

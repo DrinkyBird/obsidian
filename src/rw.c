@@ -208,6 +208,30 @@ unsigned int rw_read_uint32be(rw_t *rw) {
     return endian_tobig32(c);
 }
 
+long long rw_read_int64le(rw_t *rw) {
+    long long c; CHECK_SIZE();
+    rw_read(rw, &c, sizeof(c));
+    return endian_tolittle64(c);
+}
+
+long long rw_read_int64be(rw_t *rw) {
+    long long c; CHECK_SIZE();
+    rw_read(rw, &c, sizeof(c));
+    return endian_tobig64(c);
+}
+
+unsigned long long rw_read_uint64le(rw_t *rw) {
+    unsigned long long c; CHECK_SIZE();
+    rw_read(rw, &c, sizeof(c));
+    return endian_tolittle64(c);
+}
+
+unsigned long long rw_read_uint64be(rw_t *rw) {
+    unsigned long long c; CHECK_SIZE();
+    rw_read(rw, &c, sizeof(c));
+    return endian_tobig64(c);
+}
+
 float rw_read_floatle(rw_t *rw){
     float c; CHECK_SIZE();
     rw_read(rw, &c, sizeof(c));
@@ -280,6 +304,27 @@ int rw_write_uint32be(rw_t *rw, unsigned int c) {
     unsigned short a = endian_tobig32(c);
     return rw_write(rw, &a, sizeof(a));
 }
+
+int rw_write_int64le(rw_t *rw, long long c) {
+    long long a = endian_tolittle64(c);
+    return rw_write(rw, &a, sizeof(a));
+}
+
+int rw_write_int64be(rw_t *rw, long long c) {
+    long long a = endian_tobig64(c);
+    return rw_write(rw, &a, sizeof(a));
+}
+
+int rw_write_uint64le(rw_t *rw, unsigned long long c) {
+    unsigned long long a = endian_tolittle64(c);
+    return rw_write(rw, &a, sizeof(a));
+}
+
+int rw_write_uint64be(rw_t *rw, unsigned long long c) {
+    unsigned long long a = endian_tobig64(c);
+    return rw_write(rw, &a, sizeof(a));
+}
+
 
 int rw_write_floatle(rw_t *rw, float c) {
     float a = endian_tolittlef(c);

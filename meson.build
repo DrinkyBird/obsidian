@@ -5,6 +5,7 @@ cc = meson.get_compiler('c')
 src = [
     'src/ini.c',
     'src/md5.c',
+    'src/xxhash.c',
 
     'src/commands.c',
     'src/commands_base.c',

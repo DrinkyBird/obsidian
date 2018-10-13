@@ -5,6 +5,7 @@
 #include "map.h"
 #include "rw.h"
 #include "nbt.h"
+#include "xxhash.h"
 
 #define CLASSICWORLD_VERSION 1
 
@@ -44,19 +45,27 @@ void map_save(map_t *map) {
     nbt_add_tag(spawntag, spawnytag);
     nbt_add_tag(spawntag, spawnztag);
 
+    tag_t *metadatatag = nbt_create_compound("Metadata");nbt_add_tag(root, metadatatag);
+    tag_t *exttag = nbt_create_compound("miniclassic"); nbt_add_tag(metadatatag, exttag);
+
+    tag_t *blockhashtag = nbt_create("BlocksHash"); nbt_add_tag(exttag, blockhashtag);
+
+    unsigned long long hash = XXH64(map->blocks, num_blocks, (unsigned long long)0);
+    nbt_set_long(blockhashtag, hash);
+
     nbt_add_tag(root, spawntag);
 
     rw_t *rw = rw_create_empty(num_blocks + 1024);
     nbt_write(root, rw);
 
-    int outsize = (rw_size(rw) * 1.1) + 12;
+    int outsize = (rw_tell(rw) * 1.1) + 12;
     byte *outbuf = malloc(outsize);
 
     z_stream stream;
     stream.zalloc = Z_NULL;
     stream.zfree = Z_NULL;
     stream.opaque = Z_NULL;
-    stream.avail_in = rw_size(rw);
+    stream.avail_in = rw_tell(rw);
     stream.next_in = rw->buf;
     stream.avail_out = outsize;
     stream.next_out = (Bytef*)outbuf;
@@ -158,6 +167,24 @@ map_t *map_load(const char *name) {
 
     map_t *map = map_create(name, w, d, h);
     memcpy(map->blocks, blocks, (w * d * h));
+
+    unsigned long long hash = XXH64(blocks, (w*d*h), (unsigned long long)0);
+
+    tag_t *metadatatag = nbt_get_tag(root, "Metadata");
+
+    if (metadatatag != NULL && metadatatag->type == tag_compound) {
+        tag_t *exttag = nbt_get_tag(metadatatag, "miniclassic");
+
+        if (exttag != NULL && metadatatag->type == tag_compound) {
+            tag_t *hashtag = nbt_get_tag(exttag, "BlocksHash");
+            unsigned long long hashtagv = (unsigned long long) hashtag->l;
+
+            if (hashtagv != hash) {
+                fprintf(stderr, "Block array hash mismatch: %llu != %lld\n", hash, hashtag->l);
+                return NULL;
+            }
+        }
+    }
 
     nbt_destroy(root, true);
     rw_destroy_and_buffer(rw);

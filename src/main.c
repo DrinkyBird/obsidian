@@ -16,6 +16,7 @@
 #include "version.h"
 #include "commands.h"
 #include "namelist.h"
+#include "nbt.h"
 
 #define IS_OPT(n) (strcmp(long_options[option_index].name, n) == 0) 
 
@@ -41,6 +42,24 @@ static const struct option long_options[] = {
     { "version", no_argument, NULL, 0 },
     {NULL, no_argument, NULL, 0}
 };
+
+void nbttest() {
+    FILE *f = fopen("bigtest.nbt", "rb");
+    fseek(f, 0, SEEK_END);
+    int flen = ftell(f);
+    fseek(f, 0, SEEK_SET);
+
+    byte *inf = malloc(flen);
+    fread(inf, flen, 1, f);
+    fclose(f);
+
+    rw_t *rw = rw_create(inf, flen);
+
+    tag_t *t = nbt_read(rw, true);
+    nbt_dump(t, 0);
+
+    rw_destroy_and_buffer(rw);
+}
 
 int main(int argc, char *argv[]) {
     int c, option_index;
