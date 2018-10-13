@@ -170,6 +170,7 @@ void broadcast_op_action(player_t *source, const char *f, ...) {
     va_end(args);
 
     snprintf(buf, sizeof(buf), "&7[%s: %s]", source->name, act);
+    printf("[%s: %s]\n", source->name, act);
 
     for (int i = 0; i < num_connections; i++) {
         connection_t *c = connections[i];
