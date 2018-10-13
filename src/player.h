@@ -19,9 +19,13 @@ typedef struct player_s {
 void playerman_init(int players);
 int playerman_get_num_online();
 
+player_t *player_get_by_name(const char *name);
+
 player_t *player_create(struct connection_s *conn);
 void player_destroy(player_t *player);
 void player_spawn(player_t *player);
+void player_set_op(player_t *player, bool op);
+
 bool player_is_block_admin_only(block_e);
 
 void player_broadcast_movement(player_t *player);

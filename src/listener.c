@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <fcntl.h>
 #include <unistd.h>
+#include <stdarg.h>
 #include "listener.h"
 #include "connection.h"
 #include "platform.h"
@@ -157,6 +158,30 @@ void broadcast_msg(const char *msg) {
     broadcast_rw(packet);
 
     rw_destroy_and_buffer(packet);
+}
+
+void broadcast_op_action(player_t *source, const char *f, ...) {
+    char act[64];
+    char buf[64];
+
+    va_list args;
+    va_start(args, f);
+    vsnprintf(act, sizeof(act), f, args);
+    va_end(args);
+
+    snprintf(buf, sizeof(buf), "&7[%s: %s]", source->name, act);
+
+    for (int i = 0; i < num_connections; i++) {
+        connection_t *c = connections[i];
+        if (c == NULL || c->player == NULL) continue;
+        if (!c->player->op) continue;
+
+        if (c->player == source) {
+            connection_msg(c, act);
+        } else {
+            connection_msg(c, buf);
+        }
+    }
 }
 
 int listener_get_active_connections() {

@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 #include "listener.h"
 #include "connection.h"
 #include "player.h"
@@ -21,6 +22,20 @@ void playerman_init(int numplayers) {
     for (int i = 0; i < num_players; i++) {
         players[i] = NULL;
     }
+}
+
+player_t *player_get_by_name(const char *name) {
+    for (int i = 0; i < num_players; i++) {
+        if (players[i] == NULL) {
+            continue;
+        }
+
+        if (strcasecmp(players[i]->name, name) == 0) {
+            return players[i];
+        }
+    }
+
+    return NULL;
 }
 
 player_t *player_create(connection_t *conn) {
@@ -123,6 +138,19 @@ void player_spawn(player_t *player) {
     snprintf(buf, 64, "&e%s joined the game.", player->name);
     printf("%s joined the game.\n", player->name);
     broadcast_msg(buf);
+}
+
+void player_set_op(player_t *player, bool op) {
+    if (player->op == op) {
+        return;
+    }
+
+    player->op = op;
+
+    rw_t *rw = packet_create();
+    rw_write_byte(rw, PACKET_PLAYER_SET_TYPE);
+    rw_write_byte(rw, op ? 0x64 : 0x00);
+    packet_send(rw, player->conn);
 }
 
 bool player_is_block_admin_only(block_e b) {

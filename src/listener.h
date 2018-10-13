@@ -4,6 +4,7 @@
 #include <stdint.h>
 #include "rw.h"
 #include "platform.h"
+#include "player.h"
 
 typedef struct listener_s {
     uint16_t port;
@@ -16,6 +17,7 @@ void listener_tick(listener_t *listener);
 
 void broadcast_rw(rw_t *rw);
 void broadcast_msg(const char *msg);
+void broadcast_op_action(player_t *source, const char *f, ...);
 
 int listener_get_active_connections();
 
