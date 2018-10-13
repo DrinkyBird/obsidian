@@ -78,8 +78,10 @@ void map_save(map_t *map) {
         fprintf(stderr, "zlib error.");
     }
 
-    while ((err = deflate(&stream, Z_FINISH)) != Z_STREAM_END);
-    deflateEnd(&stream);
+    if ((err = deflate(&stream, Z_FINISH)) != Z_STREAM_END) {
+        fprintf(stderr, "zlib error %d\n", err);
+        return;
+    }
 
     FILE *f = fopen(buf, "wb");
     if (f == NULL) {
@@ -87,8 +89,10 @@ void map_save(map_t *map) {
         return;
     }
 
-    fwrite(outbuf, outsize, 1, f);
+    fwrite(outbuf, stream.total_out, 1, f);
     fclose(f);
+
+    deflateEnd(&stream);
 
     rw_destroy_and_buffer(rw);
 }
@@ -239,7 +243,7 @@ int attempt_inflate(byte *in, int in_size, byte *out, int out_size, int *buf_siz
 
     inflateEnd(&stream);
 
-    *buf_size = stream.avail_in;
+    *buf_size = stream.total_out;
 
     return r;
 }
