@@ -508,11 +508,11 @@ void connection_disconnect(connection_t *conn, const char *reason) {
     packet_send(packet, conn);
     connection_flush_out(conn);
 
-    printf("%s was disconnected (%s)\n", conn->name, reason);
+    printf("%s left the game. (%s)\n", conn->name, reason);
 
     if (conn->player != NULL) {
         char buf[64];
-        snprintf(buf, 64, "&e%s disconnected (%s)", conn->name, reason);
+        snprintf(buf, 64, "&e%s left the game. (%s)", conn->name, reason);
         broadcast_msg(buf);
     }
 
