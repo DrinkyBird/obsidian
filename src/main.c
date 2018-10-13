@@ -171,7 +171,7 @@ namelist_t *read_or_create_namelist(const char *fn) {
     if (nl == NULL) {
         printf("%s does not exist, creating it.\n", fn);
         nl = namelist_create(128);
-        nl->filename = fn;
+        nl->filename = (char *)fn;
     }
 
     return nl;

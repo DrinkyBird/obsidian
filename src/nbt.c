@@ -342,8 +342,8 @@ void nbt_dump(tag_t *tag, int indent) {
     }
     indentstr[indent] = 0;
 
-    printf(indentstr);
-    printf(tag_get_type_name(tag->type));
+    printf("%s", indentstr);
+    printf("%s", tag_get_type_name(tag->type));
     printf("(");
     
     if (tag->name == NULL) {

@@ -2,6 +2,7 @@
 #define __PLAYER_H__
 
 #include <stdbool.h>
+#include "defs.h"
 
 struct connection_s;
 
@@ -27,7 +28,7 @@ void player_spawn(player_t *player);
 void player_set_op(player_t *player, bool op);
 void player_teleport(player_t *player, float x, float y, float z);
 
-bool player_is_block_admin_only(block_e);
+bool player_is_block_admin_only(block_e b);
 
 void player_broadcast_movement(player_t *player);
 

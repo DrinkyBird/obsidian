@@ -7,7 +7,7 @@ typedef struct namelist_s {
     char **names;
     int num_names;
 
-    const char *filename;
+    char *filename;
 } namelist_t;
 
 namelist_t *namelist_create(int num);

@@ -25,8 +25,8 @@ void commands_execute(const char *msg, player_t *player) {
 
     msg++;
 
-    char *sep1 = msg;
-    const char **argv;
+    char *sep1 = (char *)msg;
+    char **argv;
     char *token;
     char *command;
     int argc = 0, i = 0;

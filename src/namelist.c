@@ -96,7 +96,7 @@ bool namelist_add(namelist_t *nl, const char *name) {
     
     for (int i = 0; i < nl->num_names; i++) {
         if (nl->names[i] == NULL) {
-            nl->names[i] = name;
+            nl->names[i] = (char *)name;
 
             if (nl->filename) {
                 namelist_write_file(nl, nl->filename);
