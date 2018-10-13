@@ -149,10 +149,39 @@ void basecmd_deop(int argc, char **argv, player_t *player) {
     broadcast_op_action(player, "De-opped %s", name);
 }
 
+void basecmd_whisper(int argc, char **argv, player_t *player) {
+    if (argc < 3) {
+        connection_msg(player->conn, "Syntax: /whisper <target> <message>");
+        return;
+    }
+
+    const char *name = argv[1];
+    player_t *target = player_get_by_name(name);
+    if (target == NULL) { 
+        connection_msgf(player->conn, "No such player by the name %s", name);
+        return;
+    }
+
+    char msg[64];
+    memset(msg, 0, sizeof(msg));
+    int p = 0;
+
+    for (int i = 2; i < argc; i++) {
+        int l = strlen(argv[i]);
+        strcpy(msg + p, argv[i]);
+        p += l;
+        msg[p++] = ' ';
+    }
+
+    connection_msgf(player->conn, "&e[-> %s] &f%s", target->name, msg);
+    connection_msgf(target->conn, "&e[%s ->] &f%s", player->name, msg);
+}
+
 void basecmds_init() {
     command_register("kick", basecmd_kick);
     command_register("ban", basecmd_ban);
     command_register("unban", basecmd_unban);
     command_register("op", basecmd_op);
     command_register("deop", basecmd_deop);
+    command_register("whisper", basecmd_whisper);
 }
