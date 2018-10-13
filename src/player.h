@@ -25,6 +25,7 @@ player_t *player_create(struct connection_s *conn);
 void player_destroy(player_t *player);
 void player_spawn(player_t *player);
 void player_set_op(player_t *player, bool op);
+void player_teleport(player_t *player, float x, float y, float z);
 
 bool player_is_block_admin_only(block_e);
 

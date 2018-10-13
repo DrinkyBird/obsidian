@@ -153,6 +153,24 @@ void player_set_op(player_t *player, bool op) {
     packet_send(rw, player->conn);
 }
 
+void player_teleport(player_t *player, float x, float y, float z) {
+    player->x = x;
+    player->y = y;
+    player->z = z;
+
+    rw_t *packet = packet_create();
+    rw_write_byte(packet, PACKET_PLAYER_POS_AND_ANGLE);
+    rw_write_char(packet, -1);
+    rw_write_int16be(packet, TOFIXED(player->x));
+    rw_write_int16be(packet, TOFIXED(player->y));
+    rw_write_int16be(packet, TOFIXED(player->z));
+    rw_write_byte(packet, FIXEDANGLE(player->yaw));
+    rw_write_byte(packet, FIXEDANGLE(player->pitch));
+    packet_send(packet, player->conn);
+
+    player_broadcast_movement(player);
+}
+
 bool player_is_block_admin_only(block_e b) {
     return (
            b == water

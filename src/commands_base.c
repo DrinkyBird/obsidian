@@ -1,9 +1,11 @@
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
 #include "connection.h"
 #include "player.h"
 #include "commands.h"
 #include "namelist.h"
+#include "listener.h"
 
 extern namelist_t *adminlist;
 extern namelist_t *banlist;
@@ -177,6 +179,63 @@ void basecmd_whisper(int argc, char **argv, player_t *player) {
     connection_msgf(target->conn, "&e[%s ->] &f%s", player->name, msg);
 }
 
+void basecmd_tp(int argc, char **argv, player_t *player) {
+    if (!player->op) {
+        connection_msg(player->conn, "&cYou do not have permission to use this command");
+        return;
+    }
+
+    if (argc < 2 || argc > 5) {
+        connection_msg(player->conn, "Syntax: /tp [player] <target>");
+        connection_msg(player->conn, "     or /tp [player] <x> <y> <z>");
+        return;
+    }
+
+    /* teleport to position */
+    if (argc >= 4) {
+        int i = 0;
+        player_t *target = player;
+
+        if (argc == 5) {
+            target = player_get_by_name(argv[i + 1]);
+            i++;
+
+            if (target == NULL) {
+                connection_msgf(player->conn, "No player named %s", argv[1]);
+                return;
+            }
+        }
+
+        float x = atof(argv[i + 1]);
+        float y = atof(argv[i + 2]);
+        float z = atof(argv[i + 3]);
+
+        player_teleport(target, x, y, z);
+        broadcast_op_action(player, "Teleported %s to [%f, %f, %f]", target->name, x, y, z);
+    } else {
+        player_t *who = player;
+        int i = 0;
+        if (argc == 3) {
+            who = player_get_by_name(argv[1]);
+            i++;
+
+            if (who == NULL) {
+                connection_msgf(player->conn, "No player named %s", argv[1]);
+                return;
+            }
+        }
+
+        player_t *dest = player_get_by_name(argv[i + 1]);
+        if (dest == NULL) {
+            connection_msgf(player->conn, "No player named %s", argv[1]);
+            return;
+        }
+
+        player_teleport(who, dest->x, dest->y, dest->z);
+        broadcast_op_action(player, "Teleported %s to %s", who->name, dest->name);
+    }
+}
+
 void basecmds_init() {
     command_register("kick", basecmd_kick);
     command_register("ban", basecmd_ban);
@@ -184,4 +243,5 @@ void basecmds_init() {
     command_register("op", basecmd_op);
     command_register("deop", basecmd_deop);
     command_register("whisper", basecmd_whisper);
+    command_register("tp", basecmd_tp);
 }
