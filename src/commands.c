@@ -22,7 +22,7 @@ void commands_execute(const char *msg, player_t *player) {
 
     msg++;
 
-    char *sep1 = msg, *sep2 = msg;
+    char *sep1 = msg;
     const char **argv;
     char *token;
     char *command;
@@ -78,7 +78,7 @@ command_t *command_register(const char *name, command_callback_t callback) {
     }
 
     if (!found) {
-        fprintf("ran out of room to register commands (max %d)\n", NUM_COMMANDS);
+        fprintf(stderr, "ran out of room to register commands (max %d)\n", NUM_COMMANDS);
         return NULL;
     }
 
