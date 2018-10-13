@@ -9,4 +9,6 @@ typedef SOCKET socket_t;
 #define SOCKERR_EAGAIN 0
 #define SOCKERR_EWOULDBLOCK WSAEWOULDBLOCK
 
+char* platform_strsep(char** stringp, const char* delim);
+
 #endif

@@ -3,6 +3,7 @@
 #include <string.h>
 #include "commands.h"
 #include "connection.h"
+#include "platform.h"
 
 #define NUM_COMMANDS 64
 #define NUM_ARGS 64
@@ -29,7 +30,7 @@ void commands_execute(const char *msg, player_t *player) {
 
     argv = calloc(NUM_ARGS, sizeof(*argv));
 
-    while ((token = strsep(&sep1, " "))) {
+    while ((token = platform_strsep(&sep1, " "))) {
         argv[argc] = token;
         argc++;
     }

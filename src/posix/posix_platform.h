@@ -10,4 +10,6 @@ typedef int socket_t;
 #define SOCKERR_EAGAIN EAGAIN
 #define SOCKERR_EWOULDBLOCK EWOULDBLOCK
 
+#define platform_strsep strsep
+
 #endif
