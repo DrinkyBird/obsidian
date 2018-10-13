@@ -207,7 +207,7 @@ void basecmd_tp(int argc, char **argv, player_t *player) {
         }
 
         float x = atof(argv[i + 1]);
-        float y = atof(argv[i + 2]);
+        float y = atof(argv[i + 2]) + 1.59375f;
         float z = atof(argv[i + 3]);
 
         player_teleport(target, x, y, z);
