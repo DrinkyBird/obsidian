@@ -16,6 +16,8 @@ typedef struct connection_s {
     const char *name;
     const char *key;
 
+    const char *software;
+
     player_t *player;
 
     byte *out_buf;

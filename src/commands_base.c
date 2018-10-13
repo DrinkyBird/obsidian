@@ -236,6 +236,32 @@ void basecmd_tp(int argc, char **argv, player_t *player) {
     }
 }
 
+void basecmd_whois(int argc, char **argv, player_t *player) {
+    if (argc != 2) {
+        connection_msg(player->conn, "Syntax: /whois <name>");
+        return;
+    }
+
+    const char *name = argv[1];
+
+    player_t *p = player_get_by_name(name);
+
+    if (p == NULL) {
+        connection_msgf(player->conn, "No player named %s", name);
+        return;
+    }
+
+    name = p->name;
+
+    connection_msgf(player->conn, "&eInformation on &f%s&e (ID &f%d&e):", name, p->id);
+    connection_msgf(player->conn, "* &eX: &f%f &eY: &f%f &eZ: &f%f", name, p->x, p->y, p->z);
+    connection_msgf(player->conn, "* &eYaw: &f%f &ePitch: &f%f", name, p->yaw, p->pitch);
+    connection_msgf(player->conn, "* &f%s is %san operator", name, p->op ? "" : "not ");
+
+    if (player->conn->software != NULL)
+        connection_msgf(player->conn, "* &f%s is using &f%s", name, p->conn->software);
+}
+
 void basecmds_init() {
     command_register("kick", basecmd_kick);
     command_register("ban", basecmd_ban);
@@ -244,4 +270,5 @@ void basecmds_init() {
     command_register("deop", basecmd_deop);
     command_register("whisper", basecmd_whisper);
     command_register("tp", basecmd_tp);
+    command_register("whois", basecmd_whois);
 }

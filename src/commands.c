@@ -9,9 +9,12 @@
 #define NUM_ARGS 64
 static command_t **commands;
 
+static void basecmd_help(int argc, char **argv, player_t *player);
+
 void commands_init() {
     commands = calloc(NUM_COMMANDS, sizeof(*commands));
 
+    command_register("help", basecmd_help);
     basecmds_init();
 }
 
@@ -89,4 +92,14 @@ command_t *command_register(const char *name, command_callback_t callback) {
     commands[i] = cmd;
 
     return cmd;
+}
+
+void basecmd_help(int argc, char **argv, player_t *player){
+    for (int i = 0; i < NUM_COMMANDS; i++) {
+        command_t *cmd = commands[i];
+
+        if (cmd == NULL) continue;
+
+        connection_msgf(player->conn, "&e* &f/%s", cmd->name);
+    } 
 }

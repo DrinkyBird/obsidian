@@ -322,7 +322,7 @@ nofix:
         }
 
         case PACKET_EXTINFO: {
-            rw_read_mc_str(rw);
+            conn->software = rw_read_mc_str(rw);
             conn->num_extensions = rw_read_int16be(rw);
             conn->extensions = calloc(conn->num_extensions, sizeof(cpeext_t));
 
