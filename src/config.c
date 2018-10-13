@@ -34,7 +34,7 @@ int config_handle_ini(void* user, const char* section, const char* name, const c
             COPYSTR(configuration->motd, value);
         } else if (strcasecmp(name, "verifynames") == 0) {
             configuration->verifynames = boolify(value, line);
-        } else if (strcasecmp(name, "heartbea") == 0) {
+        } else if (strcasecmp(name, "heartbeat") == 0) {
             configuration->should_heartbeat = boolify(value, line);
         }
     }

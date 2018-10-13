@@ -16,6 +16,7 @@ src = [
     'src/map.c',
     'src/mapgz.c',
     'src/mapsave.c',
+    'src/namelist.c',
     'src/nbt.c',
     'src/player.c',
     'src/rw.c',

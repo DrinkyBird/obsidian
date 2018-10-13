@@ -15,6 +15,7 @@
 #include "platform.h"
 #include "version.h"
 #include "commands.h"
+#include "namelist.h"
 
 #define IS_OPT(n) (strcmp(long_options[option_index].name, n) == 0) 
 
@@ -25,6 +26,10 @@ int current_tick = 0;
 
 static void tick();
 static void handle_sigint(int);
+static namelist_t *read_or_create_namelist(const char *fn);
+
+namelist_t *banlist = NULL;
+namelist_t *adminlist = NULL;
 
 static bool running = true;
 
@@ -74,6 +79,9 @@ int main(int argc, char *argv[]) {
         }
     }
 
+    banlist = read_or_create_namelist("banlist.txt");
+    adminlist = read_or_create_namelist("adminlist.txt");
+
     commands_init();
 
     printf("%s\n", full_name);
@@ -121,6 +129,10 @@ int main(int argc, char *argv[]) {
     map_save(map);
 
     commands_shutdown();
+
+    namelist_destroy(adminlist);
+    namelist_destroy(banlist);
+
     platform_shutdown();
 
     return 0;
@@ -149,4 +161,17 @@ int rrand(int min, int max) {
 
 const char *app_get_full_name() {
     return full_name;
+}
+
+namelist_t *read_or_create_namelist(const char *fn) {
+    namelist_t *nl;
+    nl = namelist_read_file(fn);
+
+    if (nl == NULL) {
+        printf("%s does not exist, creating it.\n", fn);
+        nl = namelist_create(128);
+        nl->filename = fn;
+    }
+
+    return nl;
 }

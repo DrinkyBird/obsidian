@@ -17,6 +17,7 @@
 #include "config.h"
 #include "platform.h"
 #include "commands.h"
+#include "namelist.h"
 
 #ifndef _WIN32
 #include <sys/socket.h>
@@ -38,6 +39,8 @@ extern map_t *map;
 extern int current_tick;
 extern int num_connections;
 extern connection_t **connections;
+extern namelist_t *adminlist;
+extern namelist_t *banlist;
 
 connection_t *connection_create(int fd) {
     connection_t *conn = malloc(sizeof(*conn));
@@ -162,6 +165,11 @@ bool connection_handle_packet(connection_t *conn, unsigned char id, rw_t* rw) {
                 return false;
             }
 
+            if (namelist_contains(banlist, conn->name)) {
+                connection_disconnect(conn, "You are banned from this server!");
+                return false;
+            }
+
             byte unused = rw_read_byte(rw);
 
             /* check for name conflicts */
@@ -177,13 +185,14 @@ bool connection_handle_packet(connection_t *conn, unsigned char id, rw_t* rw) {
             }
 
             bool supportsCpe = unused == 0x42;
+            bool isOp = namelist_contains(adminlist, conn->name);
 
             rw_t *packet = packet_create();
             rw_write_byte(packet, PACKET_IDENT);
             rw_write_byte(packet, 7);
             rw_write_mc_str(packet, configuration->name);
             rw_write_mc_str(packet, configuration->motd);
-            rw_write_byte(packet, 0x64);
+            rw_write_byte(packet, isOp ? 0x64 : 0x00);
             packet_send(packet, conn);
 
             connection_flush_out(conn);
@@ -471,6 +480,8 @@ void connection_send_mapgz(connection_t *conn) {
             connection_disconnect(conn, "Failed to create player instance");
             return;
         }
+
+        conn->player->op = namelist_contains(adminlist, conn->name);
 
         player_spawn(conn->player);
     }
