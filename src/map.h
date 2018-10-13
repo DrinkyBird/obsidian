@@ -12,6 +12,7 @@ typedef struct map_s {
     int width, depth, height;
     byte *blocks;
 
+    byte *uuid;
     unsigned int time_created, last_modify, last_access;
 } map_t;
 

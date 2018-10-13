@@ -20,6 +20,16 @@ map_t *map_create(const char *name, int width, int depth, int height) {
     map->time_created = (unsigned int)time(NULL);
     map->last_modify = 0;
     map->last_access = 0;
+    map->uuid = calloc(16, sizeof(byte));
+
+    for (int i = 0; i < 16; i++) {
+        map->uuid[i] = (byte)rrand(0, 0xFF);
+    }
+
+    map->uuid[6] &= 0x0F;
+    map->uuid[6] |= 0x40;
+    map->uuid[8] &= 0x3F;
+    map->uuid[8] |= 0x80;
 
     return map;
 }

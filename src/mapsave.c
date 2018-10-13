@@ -19,16 +19,13 @@ void map_save(map_t *map) {
 
     int num_blocks = (map->width * map->depth * map->height);
 
-    byte *uuid = malloc(16);
-    memset(uuid, 0, 16);
-
     tag_t *root = nbt_create_compound("ClassicWorld");
     tag_t *ver = nbt_create("FormatVersion"); nbt_set_char(ver, CLASSICWORLD_VERSION);
     tag_t *xtag = nbt_create("X"); nbt_set_short(xtag, map->width);
     tag_t *ytag = nbt_create("Y"); nbt_set_short(ytag, map->depth);
     tag_t *ztag = nbt_create("Z"); nbt_set_short(ztag, map->height);
     tag_t *blocktag = nbt_copy_bytearray("BlockArray", map->blocks, num_blocks);
-    tag_t *uuidtag = nbt_copy_bytearray("UUID", uuid, 16);
+    tag_t *uuidtag = nbt_copy_bytearray("UUID", map->uuid, 16);
     tag_t *createtimetag = nbt_create("TimeCreated"); nbt_set_long(createtimetag, (long long)map->time_created);
     tag_t *accesstimetag = nbt_create("LastModified"); nbt_set_long(accesstimetag, (long long)map->last_access);
     tag_t *modifytimetag = nbt_create("LastAccessed"); nbt_set_long(modifytimetag, (long long)map->last_modify);
@@ -165,11 +162,13 @@ map_t *map_load(const char *name) {
     tag_t *ytag = nbt_get_tag(root, "Y");
     tag_t *ztag = nbt_get_tag(root, "Z");
     tag_t *blockstag = nbt_get_tag(root, "BlockArray");
+    tag_t *uuidtag = nbt_get_tag(root, "UUID");
 
     int w = xtag->i;
     int d = ytag->i;
     int h = ztag->i;
     byte *blocks = blockstag->pb;
+    byte *uuid = uuidtag->pb;
 
     tag_t *createtimetag = nbt_get_tag(root, "TimeCreated");
     tag_t *modifytimetag = nbt_get_tag(root, "LastModified");
@@ -186,6 +185,13 @@ map_t *map_load(const char *name) {
     }
     if (accesstimetag != NULL && accesstimetag->type == tag_long) {
         map->last_access = (int)accesstimetag->l;
+    }
+    if (uuidtag != NULL && uuidtag->type == tag_byte_array) {
+        map->uuid = uuid;
+    }
+
+    if (uuidtag->array_size != 16) {
+        fprintf(stderr, "%s invalid: UUID field is of invalid size: expected 16, got %d\n", buf, uuidtag->array_size);
     }
 
     unsigned long long hash = XXH64(blocks, (w*d*h), (unsigned long long)0);
