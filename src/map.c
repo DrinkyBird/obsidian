@@ -1,7 +1,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-#include <zlib.h>
+#include <time.h>
 #include "map.h"
 #include "rw.h"
 #include "nbt.h"
@@ -17,6 +17,9 @@ map_t *map_create(const char *name, int width, int depth, int height) {
     map->depth = depth;
     map->height = height;
     map->blocks = calloc((width * depth * height), sizeof(*map->blocks));
+    map->time_created = (unsigned int)time(NULL);
+    map->last_modify = 0;
+    map->last_access = 0;
 
     return map;
 }
@@ -27,6 +30,7 @@ block_e map_get(map_t *map, int x, int y, int z) {
         return air;
     }
 
+    map->last_access = (unsigned int)time(NULL);
     return map->blocks[map_get_block_index(map, x, y, z)];
 }
 
@@ -46,6 +50,7 @@ bool map_set(map_t *map, int x, int y, int z, block_e block) {
 
     int i = map_get_block_index(map, x, y, z);
 
+    map->last_modify = (unsigned int)time(NULL);
     map->blocks[i] = block;
     return true;
 }

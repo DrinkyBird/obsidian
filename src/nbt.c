@@ -330,7 +330,7 @@ tag_t *nbt_get_tag(tag_t *tag, const char *n) {
         }
     }
 
-    fprintf(stderr, "tag %s has no sub-tag %s\n", tag->name, n);
+    fprintf(stderr, "tag %s('%s') has no sub-tag %s\n", tag_get_type_name(tag->type), tag->name, n);
 
     return NULL;
 }

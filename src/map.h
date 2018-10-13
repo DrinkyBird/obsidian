@@ -11,6 +11,8 @@ typedef struct map_s {
     const char *name;
     int width, depth, height;
     byte *blocks;
+
+    unsigned int time_created, last_modify, last_access;
 } map_t;
 
 typedef struct mapsave_s {

@@ -29,6 +29,9 @@ void map_save(map_t *map) {
     tag_t *ztag = nbt_create("Z"); nbt_set_short(ztag, map->height);
     tag_t *blocktag = nbt_copy_bytearray("BlockArray", map->blocks, num_blocks);
     tag_t *uuidtag = nbt_copy_bytearray("UUID", uuid, 16);
+    tag_t *createtimetag = nbt_create("TimeCreated"); nbt_set_long(createtimetag, (long long)map->time_created);
+    tag_t *accesstimetag = nbt_create("LastModified"); nbt_set_long(accesstimetag, (long long)map->last_access);
+    tag_t *modifytimetag = nbt_create("LastAccessed"); nbt_set_long(modifytimetag, (long long)map->last_modify);
 
     nbt_add_tag(root, xtag);
     nbt_add_tag(root, ytag);
@@ -36,6 +39,9 @@ void map_save(map_t *map) {
     nbt_add_tag(root, ver);
     nbt_add_tag(root, blocktag);
     nbt_add_tag(root, uuidtag);
+    nbt_add_tag(root, createtimetag);
+    nbt_add_tag(root, accesstimetag);
+    nbt_add_tag(root, modifytimetag);
 
     tag_t *spawntag = nbt_create_compound("Spawn");
     tag_t *spawnxtag = nbt_create("X"); nbt_set_short(spawnxtag, map->width / 2);
@@ -165,8 +171,22 @@ map_t *map_load(const char *name) {
     int h = ztag->i;
     byte *blocks = blockstag->pb;
 
+    tag_t *createtimetag = nbt_get_tag(root, "TimeCreated");
+    tag_t *modifytimetag = nbt_get_tag(root, "LastModified");
+    tag_t *accesstimetag = nbt_get_tag(root, "LastAccessed");
+
     map_t *map = map_create(name, w, d, h);
     memcpy(map->blocks, blocks, (w * d * h));
+
+    if (createtimetag != NULL && createtimetag->type == tag_long) {
+        map->time_created = (int)createtimetag->l;
+    }
+    if (modifytimetag != NULL && modifytimetag->type == tag_long) {
+        map->last_modify = (int)modifytimetag->l;
+    }
+    if (accesstimetag != NULL && accesstimetag->type == tag_long) {
+        map->last_access = (int)accesstimetag->l;
+    }
 
     unsigned long long hash = XXH64(blocks, (w*d*h), (unsigned long long)0);
 
