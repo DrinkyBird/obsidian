@@ -14,6 +14,7 @@
 #include "config.h"
 #include "platform.h"
 #include "version.h"
+#include "commands.h"
 
 #define IS_OPT(n) (strcmp(long_options[option_index].name, n) == 0) 
 
@@ -73,6 +74,8 @@ int main(int argc, char *argv[]) {
         }
     }
 
+    commands_init();
+
     printf("%s\n", full_name);
 
     int width = configuration->width;
@@ -117,6 +120,7 @@ int main(int argc, char *argv[]) {
 
     map_save(map);
 
+    commands_shutdown();
     platform_shutdown();
 
     return 0;

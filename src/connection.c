@@ -5,6 +5,7 @@
 #include <unistd.h>
 #include <pthread.h>
 #include <string.h>
+#include <stdarg.h>
 #include "listener.h"
 #include "connection.h"
 #include "defs.h"
@@ -15,6 +16,7 @@
 #include "heartbeat.h"
 #include "config.h"
 #include "platform.h"
+#include "commands.h"
 
 #ifndef _WIN32
 #include <sys/socket.h>
@@ -221,6 +223,15 @@ bool connection_handle_packet(connection_t *conn, unsigned char id, rw_t* rw) {
             rw_read_byte(rw);
 
             const char *msg = rw_read_mc_str(rw);
+
+            if (conn->player == NULL) {
+                break;
+            }
+
+            if (msg[0] == '/') {
+                commands_execute(msg, conn->player);
+                break;
+            }
 
             snprintf(buf, 64, "<%s> %s", conn->name, msg);
             printf("%s\n", buf);
@@ -471,6 +482,16 @@ void connection_msg(connection_t *conn, const char *msg) {
     rw_write_byte(packet, 0);
     rw_write_mc_str(packet, msg);
     packet_send(packet, conn);
+}
+
+void connection_msgf(connection_t *conn, const char *f, ...) {
+    char buf[64];
+
+    va_list args;
+    va_start(args, f);
+    vsnprintf(buf, sizeof(buf), f, args);
+    connection_msg(conn, buf);
+    va_end(args);
 }
 
 void connection_disconnect(connection_t *conn, const char *reason) {

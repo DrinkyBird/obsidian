@@ -6,6 +6,7 @@ src = [
     'src/ini.c',
     'src/md5.c',
 
+    'src/commands.c',
     'src/config.c',
     'src/connection.c',
     'src/cpe.c',

@@ -45,6 +45,7 @@ void connection_tick(connection_t *conn);
 void connection_write(connection_t *conn, void *buf, int len);
 void connection_write_rw(connection_t *conn, rw_t *rw);
 void connection_msg(connection_t *conn, const char *msg);
+void connection_msgf(connection_t *conn, const char *f, ...);
 
 rw_t *packet_create();
 void packet_send(rw_t *packet, connection_t *conn);

@@ -1,0 +1,91 @@
+#include <stdlib.h>
+#include <stdio.h>
+#include <string.h>
+#include "commands.h"
+#include "connection.h"
+
+#define NUM_COMMANDS 64
+#define NUM_ARGS 64
+static command_t **commands;
+
+static command_t *command_register(const char *name, command_callback_t *callback);
+
+void commands_init() {
+    commands = calloc(NUM_COMMANDS, sizeof(*commands));
+}
+
+void commands_execute(const char *msg, player_t *player) {
+    if (msg[0] != '/') {
+        return;
+    }
+
+    msg++;
+
+    char *sep1 = msg, *sep2 = msg;
+    const char **argv;
+    char *token;
+    char *command;
+    int argc = 0, i = 0;
+
+    argv = calloc(NUM_ARGS, sizeof(*argv));
+
+    while ((token = strsep(&sep1, " "))) {
+        argv[argc] = token;
+        argc++;
+    }
+
+    command = argv[0];
+
+    bool found = false;
+    for (i = 0; i < NUM_COMMANDS; i++) {
+        if (commands[i] == NULL) {
+            continue;
+        }
+
+        if (strcasecmp(command, commands[i]->name) == 0) {
+            commands[i]->callback(argc, argv, player);
+            found = true;
+            break;
+        }
+    }
+    
+    if (!found) {
+        connection_msg(player->conn, "&cUnknown command.");
+    }
+
+    free(argv);
+}
+
+void commands_shutdown() {
+    for (int i = 0; i < NUM_COMMANDS; i++) {
+        command_t *c = commands[i];
+        if (c == NULL) continue;
+        free(c);
+    }
+
+    free(commands);
+}
+
+command_t *command_register(const char *name, command_callback_t *callback) {
+    int i;
+    bool found = false;
+    for (i = 0; i < NUM_COMMANDS; i++) {
+        if (commands[i] == NULL) {
+            found = true;
+            break;
+        }
+    }
+
+    if (!found) {
+        fprintf("ran out of room to register commands (max %d)\n", NUM_COMMANDS);
+        return NULL;
+    }
+
+    command_t *cmd = malloc(sizeof(*cmd));
+    cmd->name = name;
+    cmd->callback = callback;
+
+    commands[i] = cmd;
+
+    return cmd;
+}
