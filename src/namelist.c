@@ -90,6 +90,10 @@ void namelist_destroy(namelist_t *nl) {
 }
 
 bool namelist_add(namelist_t *nl, const char *name) {
+    if (namelist_contains(nl, name)) {
+        return false;
+    }
+    
     for (int i = 0; i < nl->num_names; i++) {
         if (nl->names[i] == NULL) {
             nl->names[i] = name;
@@ -108,8 +112,11 @@ bool namelist_add(namelist_t *nl, const char *name) {
 
 bool namelist_remove(namelist_t *nl, const char *name) {
     for (int i = 0; i < nl->num_names; i++) {
-        if (strcasecmp(nl->names[i], name)) {
-            free((void *)nl->names[i]);
+        if (nl->names[i] == NULL) {
+            continue;
+        }
+
+        if (strcasecmp(nl->names[i], name) == 0) {
             nl->names[i] = NULL;
 
             if (nl->filename) {

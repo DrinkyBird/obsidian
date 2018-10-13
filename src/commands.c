@@ -9,10 +9,10 @@
 #define NUM_ARGS 64
 static command_t **commands;
 
-static command_t *command_register(const char *name, command_callback_t *callback);
-
 void commands_init() {
     commands = calloc(NUM_COMMANDS, sizeof(*commands));
+
+    basecmds_init();
 }
 
 void commands_execute(const char *msg, player_t *player) {
@@ -67,7 +67,7 @@ void commands_shutdown() {
     free(commands);
 }
 
-command_t *command_register(const char *name, command_callback_t *callback) {
+command_t *command_register(const char *name, command_callback_t callback) {
     int i;
     bool found = false;
     for (i = 0; i < NUM_COMMANDS; i++) {

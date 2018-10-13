@@ -13,6 +13,9 @@ typedef struct command_s {
 
 void commands_init();
 void commands_execute(const char *msg, player_t *player);
+command_t *command_register(const char *name, command_callback_t callback);
 void commands_shutdown();
+
+void basecmds_init();
 
 #endif

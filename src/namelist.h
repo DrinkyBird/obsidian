@@ -4,7 +4,7 @@
 #include <stdbool.h>
 
 typedef struct namelist_s {
-    const char **names;
+    char **names;
     int num_names;
 
     const char *filename;

@@ -7,6 +7,7 @@ src = [
     'src/md5.c',
 
     'src/commands.c',
+    'src/commands_base.c',
     'src/config.c',
     'src/connection.c',
     'src/cpe.c',
