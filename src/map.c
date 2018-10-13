@@ -55,14 +55,16 @@ void map_generate(map_t *map) {
 
     for (int x = 0; x < map->width; x++)
     for (int z = 0; z < map->height; z++)
-    for (int y = land; y > 0; y--) 
+    for (int y = 0; y < land; y++) 
     {
         block_e b = air;
 
-        if (y == land) {
+        if (y == land - 1) {
             b = grass;
-        } else {
+        } else if (y >= land - 5) {
             b = dirt;
+        } else {
+            b = stone;
         }
 
         map_set(map, x, y, z, b);
