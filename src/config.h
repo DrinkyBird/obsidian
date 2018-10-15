@@ -12,6 +12,7 @@ typedef struct config_s {
     const char *name, *motd;
 
     const char *map_name;
+    const char *map_generator;
     int width, depth, height; 
 } config_t;
 

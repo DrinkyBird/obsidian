@@ -5,9 +5,8 @@
 #include "map.h"
 #include "rw.h"
 #include "nbt.h"
-
-int map_get_block_index(map_t *, int, int, int);
-bool map_pos_valid(map_t *, int, int, int);
+#include "perlin.h"
+#include "config.h"
 
 map_t *map_create(const char *name, int width, int depth, int height) {
     map_t *map = malloc(sizeof(*map));
@@ -21,6 +20,7 @@ map_t *map_create(const char *name, int width, int depth, int height) {
     map->last_modify = 0;
     map->last_access = 0;
     map->uuid = calloc(16, sizeof(byte));
+    map->rng = rng_create((int)time(NULL));
 
     for (int i = 0; i < 16; i++) {
         map->uuid[i] = (byte)rrand(0, 0xFF);
@@ -66,22 +66,7 @@ bool map_set(map_t *map, int x, int y, int z, block_e block) {
 }
 
 void map_generate(map_t *map) {
-    int land = map->depth / 2;
-
-    for (int x = 0; x < map->width; x++)
-    for (int z = 0; z < map->height; z++)
-    for (int y = 0; y < land; y++) 
-    {
-        block_e b = air;
-
-        if (y == land - 1) {
-            b = grass;
-        } else if (y >= land - 5) {
-            b = dirt;
-        } else {
-            b = stone;
-        }
-
-        map_set(map, x, y, z, b);
-    }
+         if (strcasecmp(configuration->map_generator, "flat") == 0) mapgen_flat_generate(map); 
+    else if (strcasecmp(configuration->map_generator, "classic") == 0) mapgen_classic_generate(map); 
+    else if (strcasecmp(configuration->map_generator, "debug") == 0) mapgen_debug_generate(map); 
 }

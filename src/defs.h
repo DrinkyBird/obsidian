@@ -82,7 +82,9 @@ typedef enum block_e {
     tnt,
     bookshelf,
     mossy_cobblestoe,
-    obsidian
+    obsidian,
+
+    num_blocks
 } block_e;
 
 #define MAX(x, y) (((x) > (y)) ? (x) : (y))

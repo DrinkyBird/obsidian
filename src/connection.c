@@ -574,6 +574,12 @@ bool connection_verify_key(connection_t *conn) {
         snprintf(digest + i2, sizeof(digest) - i2, "%02x", output[i]);
     }
 
-    return (strcasecmp(conn->key, digest) == 0);
+    bool valid = (strcasecmp(conn->key, digest) == 0);
+
+    if (!valid) {
+        fprintf(stderr, "auth failure: %s != %s\n", digest, conn->key);
+    }
+
+    return valid;
 #endif
 }

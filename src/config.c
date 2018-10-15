@@ -4,7 +4,7 @@
 #include "config.h"
 
 #define INI_MATCH(s, n) ((strcasecmp(section, s) == 0) && (strcasecmp(name, n) == 0))
-#define COPYSTR(d, s) d = malloc(strlen(s)); strcpy((char *)d, s);
+#define COPYSTR(d, s) d = calloc(strlen(s), sizeof(char)); strcpy((char *)d, s);
 
 config_t *configuration;
 
@@ -48,6 +48,8 @@ int config_handle_ini(void* user, const char* section, const char* name, const c
             configuration->depth = (int) strtoul(value, NULL, 10);
         } else if (strcasecmp(name, "height") == 0) {
             configuration->height = (int) strtoul(value, NULL, 10);
+        } else if (strcasecmp(name, "generator") == 0) {
+            COPYSTR(configuration->map_generator, value);
         }
     }
 

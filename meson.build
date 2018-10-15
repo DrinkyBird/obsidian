@@ -16,11 +16,16 @@ src = [
     'src/listener.c',
     'src/main.c',
     'src/map.c',
+    'src/mapgen.c',
+    'src/mapgen_basic.c',
+    'src/mapgen_classic.c',
     'src/mapgz.c',
     'src/mapsave.c',
     'src/namelist.c',
     'src/nbt.c',
+    'src/perlin.c',
     'src/player.c',
+    'src/rng.c',
     'src/rw.c',
 ]
 
@@ -63,6 +68,8 @@ if build_machine.system() == 'windows'
         rc
     ]
 elif build_machine.system() == 'linux'
+    deps += cc.find_library('m')
+
     src += [
         'src/posix/posix_main.c',
         'src/posix/posix_err.c'
