@@ -123,8 +123,6 @@ void gen_strata(map_t *map) {
             DO_PERCENT(done, blocks, "Soiling");
         }
     }
-
-    puts("");
 }
 
 void gen_caves(map_t *map) {
