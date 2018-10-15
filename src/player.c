@@ -12,6 +12,7 @@ int num_players;
 player_t **players;
 
 extern map_t *map;
+extern rng_t *global_rng;
 
 static int find_player_index();
 
@@ -82,9 +83,9 @@ void player_destroy(player_t *player) {
 }
 
 void player_spawn(player_t *player) {
-    player->x = rrand(0, map->width);
+    player->x = rng_next2(global_rng, 0, map->width);
     player->y = map->depth;
-    player->z = rrand(0, map->height);
+    player->z = rng_next2(global_rng, 0, map->height);
 
     rw_t *packet = packet_create();
     rw_write_byte(packet, PACKET_PLAYER_SPAWN);

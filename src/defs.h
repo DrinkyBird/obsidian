@@ -96,8 +96,6 @@ typedef enum block_e {
 #define FLOATANGLE(x) (float)(x * 360.0f / 256.0f)
 #define FIXEDANGLE(x) (byte)(x * 256.0f / 360.0f)
 
-int rrand(int min, int max);
-
 const char *app_get_full_name();
 
 #endif

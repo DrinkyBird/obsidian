@@ -6,6 +6,7 @@
 #include "defs.h"
 #include "player.h"
 #include "config.h"
+#include "rng.h"
 
 #define HEARTBEAT_URL "https://www.classicube.net/server/heartbeat"
 static const char *SALT_CHARACTERS = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
@@ -15,6 +16,7 @@ static size_t heartbeat_curl_write_stub(void *buffer, size_t size, size_t nmemb,
 
 extern int current_tick;
 extern int num_players;
+extern rng_t *global_rng;
 
 static int last_heartbeat = -HEARTBEAT_RATE;
 static pthread_t hb_thread;
@@ -90,7 +92,7 @@ void make_salt() {
     int nchars = strlen(SALT_CHARACTERS);
 
     for (int i = 0; i < SALT_LENGTH; i++) {
-        int c = rrand(0, nchars);
+        int c = rng_next2(global_rng, 0, nchars);
         salt[i] = SALT_CHARACTERS[c];
     }
 }

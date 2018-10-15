@@ -34,6 +34,8 @@ static void util_nbtdump(const char *filename);
 namelist_t *banlist = NULL;
 namelist_t *adminlist = NULL;
 
+rng_t *global_rng = NULL;
+
 static bool running = true;
 
 static char *full_name = NULL;
@@ -48,10 +50,10 @@ static const struct option long_options[] = {
 
 int main(int argc, char *argv[]) {
     int c, option_index;
-
-    srand(time(NULL));
     
     platform_init();
+
+    global_rng = rng_create((int)time(NULL));
 
     full_name = malloc(64);
     snprintf(full_name, 64, "miniclassic v%s on %s %s", VERSION_STR, platform_get_name(), platform_get_version());
@@ -142,6 +144,8 @@ int main(int argc, char *argv[]) {
     namelist_destroy(adminlist);
     namelist_destroy(banlist);
 
+    rng_destroy(global_rng);
+
     platform_shutdown();
 
     return 0;
@@ -162,10 +166,6 @@ void tick() {
 void handle_sigint(int d) {
     printf("Caught SIGINT.\n");
     running = false;
-}
-
-int rrand(int min, int max) {
-    return (rand()%(max-min))+min;
 }
 
 const char *app_get_full_name() {

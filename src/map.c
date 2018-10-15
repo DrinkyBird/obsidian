@@ -23,7 +23,7 @@ map_t *map_create(const char *name, int width, int depth, int height) {
     map->rng = rng_create((int)time(NULL));
 
     for (int i = 0; i < 16; i++) {
-        map->uuid[i] = (byte)rrand(0, 0xFF);
+        map->uuid[i] = (byte)rng_next2(map->rng, 0, 256);
     }
 
     map->uuid[6] &= 0x0F;
