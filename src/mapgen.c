@@ -5,6 +5,10 @@
 static inline int qabs(int x) { if (x < 0) return -x; return x; }
 
 bool mapgen_space_for_tree(struct map_s *map, int x, int y, int z, int height) {
+    if (!map_pos_valid(map, x, y, z) || !map_pos_valid(map, x, y - 1, z)) {
+        return false;
+    }
+
     block_e below = map_get(map, x, y - 1, z);
     if (below != dirt && below != grass) {
         return false;
@@ -15,9 +19,9 @@ bool mapgen_space_for_tree(struct map_s *map, int x, int y, int z, int height) {
         map_set(map, x, y, z, air);
     }
 
-    for (int xx = x - 1; xx < x + 1; xx++)
+    for (int xx = x - 1; xx <= x + 1; xx++)
     for (int yy = y; yy < y + height; yy++)
-    for (int zz = z - 1; zz < z + 1; zz++) {
+    for (int zz = z - 1; zz <= z + 1; zz++) {
         if (!map_pos_valid(map, xx, yy, zz)) {
             return false;
         }
@@ -29,9 +33,9 @@ bool mapgen_space_for_tree(struct map_s *map, int x, int y, int z, int height) {
 
     int canopyY = y + (height - 4);
 
-    for (int xx = x - 2; xx < x + 2; xx++)
+    for (int xx = x - 2; xx <= x + 2; xx++)
     for (int yy = canopyY; yy < y + height; yy++)
-    for (int zz = z - 2; zz < z + 2; zz++) {
+    for (int zz = z - 2; zz <= z + 2; zz++) {
         if (!map_pos_valid(map, xx, yy, zz)) {
             return false;
         }

@@ -54,7 +54,7 @@ bool map_pos_valid(map_t *m, int x, int y, int z) {
 
 bool map_set(map_t *map, int x, int y, int z, block_e block) {
     if (!map_pos_valid(map, x, y, z)) {
-        fprintf(stderr, "NOTE: attempt to set invalid block [%d, %d, %d]\n", x, y, z);
+        fprintf(stderr, "NOTE: attempt to set invalid block [%d, %d, %d] to %d\n", x, y, z, block);
         return false;
     }
 

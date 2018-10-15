@@ -32,6 +32,14 @@ static void gen_plants(map_t *map);
 static void fill_oblate_spherioid(map_t *map, int centreX, int centreY, int centreZ, double radius, block_e block);
 static void flood_fill(map_t *map, int startIndex, block_e block);
 
+#define DO_PERCENT(_done, _total, _str) \
+    _done++; \
+    int _percent = (int)(((float)_done / (float)_total) * 100.0f); \
+    if (_percent != lastPercent) { \
+        lastPercent = _percent; \
+        printf("%s... % 3d%%\n", _str, _percent); \
+    }
+
 void mapgen_classic_generate(map_t *map) {
     gen_heightmap(map);
     gen_strata(map);
@@ -50,7 +58,8 @@ void mapgen_classic_generate(map_t *map) {
 }
 
 void gen_heightmap(map_t *map) {
-    puts("Raising...");
+    int blocks = (map->width * map->height);
+    int done = 0, lastPercent = 0;
 
     combinednoise_t *noise1 = combinednoise_create(octavenoise_create(map->rng, 8), octavenoise_create(map->rng, 8));
     combinednoise_t *noise2 = combinednoise_create(octavenoise_create(map->rng, 8), octavenoise_create(map->rng, 8));
@@ -77,6 +86,8 @@ void gen_heightmap(map_t *map) {
         }
 
         heightMap[x + z * map->width] = (int) (heightResult + (map->depth / 2));
+
+        DO_PERCENT(done, blocks, "Raising");
     }
 
     combinednoise_destroy(noise1);
@@ -85,7 +96,8 @@ void gen_heightmap(map_t *map) {
 }
 
 void gen_strata(map_t *map) {
-    puts("Soiling...");
+    int blocks = (map->width * map->depth * map->height);
+    int done = 0, lastPercent = 0;
 
     octavenoise_t *noise = octavenoise_create(map->rng, 8);
 
@@ -105,16 +117,19 @@ void gen_strata(map_t *map) {
             } else if (y <= dirtTransition) {
                 block = dirt;
             }
-;
+
             map_set(map, x, y, z, block);
+
+            DO_PERCENT(done, blocks, "Soiling");
         }
     }
+
+    puts("");
 }
 
 void gen_caves(map_t *map) {
-    puts("Carving...");
-    
     int numCaves = (map->width * map->depth * map->height) / 8192;
+    int lastPercent = 0;
 
     for (int i = 0; i < numCaves; i++) {
         double caveX = rng_next2(map->rng, 0, map->width);
@@ -153,6 +168,9 @@ void gen_caves(map_t *map) {
                 fill_oblate_spherioid(map, centreX, centreY, centreZ, radius, air);
             }
         } 
+
+        int done = i;
+        DO_PERCENT(i, numCaves, "Carving");
     } 
 }
 
@@ -189,19 +207,24 @@ void gen_ore(map_t *map, block_e block, float abundance) {
 }
 
 void gen_water(map_t *map) {
-    puts("Watering...");
-
     int waterLevel = (map->depth / 2) - 1;
     int numSources = (map->width * map->height) / 800;
+
+    int total = map->width + map->height + numSources;
+    int done = 0, lastPercent = 0;
     
     for (int x = 0; x < map->width; x++) {
         flood_fill(map, map_get_block_index(map, x, waterLevel, 0), water);
         flood_fill(map, map_get_block_index(map, x, waterLevel, map->height - 1), water);
+
+        DO_PERCENT(done, total, "Watering");
     }
 
     for (int z = 0; z < map->height; z++) {
         flood_fill(map, map_get_block_index(map, 0, waterLevel, z), water);
         flood_fill(map, map_get_block_index(map, map->width - 1, waterLevel, z), water);
+
+        DO_PERCENT(done, total, "Watering");
     }
 
     for (int i = 0; i < numSources; i++) {
@@ -210,6 +233,8 @@ void gen_water(map_t *map) {
         int y = waterLevel - rng_next2(map->rng, 0, 2);
 
         flood_fill(map, map_get_block_index(map, x, y, z), water);
+
+        DO_PERCENT(done, total, "Watering");
     }
 }
 
@@ -217,12 +242,16 @@ void gen_lava(map_t *map) {
     int waterLevel = (map->depth / 2) - 1;
     int numSources = (map->width * map->height) / 20000;
 
+    int done = 0, lastPercent = 0;
+
     for (int i = 0; i < numSources; i++) {
         int x = rng_next2(map->rng, 0, map->width);
         int z = rng_next2(map->rng, 0, map->height);
         int y = (int) ((waterLevel - 3) * rng_next_float(map->rng) * rng_next_float(map->rng));
 
         flood_fill(map, map_get_block_index(map, x, y, z), lava);
+
+        DO_PERCENT(done, numSources, "Melting");
     }
 }
 
@@ -230,8 +259,11 @@ void gen_surface(map_t *map) {
     octavenoise_t *noise1 = octavenoise_create(map->rng, 8);
     octavenoise_t *noise2 = octavenoise_create(map->rng, 8);
 
+    int total = map->width * map->height;
+    int done = 0, lastPercent = 0;
+
     for (int x = 0; x < map->width; x++) 
-    for (int z = 0; z < map->width; z++) {
+    for (int z = 0; z < map->height; z++) {
         bool sandChance = octavenoise_compute(noise1, x, z) > 8;
         bool gravelChance = octavenoise_compute(noise2, x, z) > 12;
 
@@ -249,6 +281,8 @@ void gen_surface(map_t *map) {
                 map_set(map, x, y, z, grass);
             }
         }
+
+        DO_PERCENT(done, total, "Growing");
     }
 
     octavenoise_destroy(noise1);
@@ -259,6 +293,9 @@ void gen_plants(map_t *map) {
     int numFlowers = (map->width * map->height) / 3000;
     int numShrooms = (map->width * map->depth * map->height) / 2000;
     int numTrees = (map->width * map->height) / 4000;
+
+    int total = numFlowers + numShrooms + numTrees;
+    int done = 0, lastPercent = 0;
 
     for (int i = 0; i < numFlowers; i++) {
         block_e flowerType = rng_next_boolean(map->rng) ? dandelion : rose;
@@ -284,13 +321,15 @@ void gen_plants(map_t *map) {
                 }
             }
         }
+
+        DO_PERCENT(done, total, "Planting");
     }
 
     for (int i = 0; i < numShrooms; i++) {
         block_e shroomType = rng_next_boolean(map->rng) ? brown_mushroom : red_mushroom;
 
         int patchX = rng_next2(map->rng, 0, map->width);
-        int patchY = rng_next2(map->rng, 0, map->depth);
+        int patchY = rng_next2(map->rng, 1, map->depth);
         int patchZ = rng_next2(map->rng, 0, map->height);
 
         for (int j = 0; j < 20; j++) {
@@ -311,6 +350,8 @@ void gen_plants(map_t *map) {
                 }
             }
         }
+
+        DO_PERCENT(done, total, "Planting");
     }
 
     for (int i = 0; i < numTrees; i++) {
@@ -335,6 +376,8 @@ void gen_plants(map_t *map) {
                 }
             }
         }
+
+        DO_PERCENT(done, total, "Planting");
     }
 }
 
