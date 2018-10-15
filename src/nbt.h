@@ -16,7 +16,9 @@ typedef enum tag_e {
     tag_byte_array,
     tag_string,
     tag_list,
-    tag_compound
+    tag_compound,
+
+    num_tags
 } tag_e;
 
 typedef struct tag_s {

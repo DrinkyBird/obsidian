@@ -29,6 +29,8 @@ static void tick();
 static void handle_sigint(int);
 static namelist_t *read_or_create_namelist(const char *fn);
 
+static void util_nbtdump(const char *filename);
+
 namelist_t *banlist = NULL;
 namelist_t *adminlist = NULL;
 
@@ -40,6 +42,7 @@ static const struct option long_options[] = {
     { "port", required_argument, NULL, 0 },
     { "max-players", required_argument, NULL, 0 },
     { "version", no_argument, NULL, 0 },
+    { "dump-nbt", required_argument, NULL, 0 },
     {NULL, no_argument, NULL, 0}
 };
 
@@ -73,6 +76,11 @@ int main(int argc, char *argv[]) {
 
                 if (IS_OPT("max-players")) {
                     configuration->maxplayers = (int) strtoul(optarg, NULL, 10);
+                }
+
+                if (IS_OPT("dump-nbt")) {
+                    util_nbtdump(optarg);
+                    return 0;
                 }
 
                 break;
@@ -175,4 +183,37 @@ namelist_t *read_or_create_namelist(const char *fn) {
     }
 
     return nl;
+}
+
+void util_nbtdump(const char *filename) {
+    FILE *f = fopen(filename, "rb");
+    if (f == NULL) {
+        fprintf(stderr, "%s: failed to open file: ", filename);
+        perror("");
+        return;
+    }
+
+    fseek(f, 0, SEEK_END);
+    int len = ftell(f);
+    fseek(f, 0, SEEK_SET);
+
+    byte *buf = calloc(len, sizeof(byte));
+    fread(buf, len, 1, f);
+    fclose(f);
+
+    rw_t *rw = rw_create(buf, len);
+
+    byte first = rw_read_byte(rw);
+    if (first < 0 || first >= num_tags) {
+        fprintf(stderr, "%s: not a valid nbt file: expected a tag type, got 0x%02x\n", filename, first);
+        return;
+    }
+
+    rw_seek(rw, 0, rw_set);
+
+    tag_t *tag = nbt_read(rw, true);
+    nbt_dump(tag, 0);
+    rw_destroy(rw);
+
+    free(buf);
 }

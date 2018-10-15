@@ -158,6 +158,10 @@ void nbt_write(tag_t *tag, rw_t *rw) {
             rw_write_byte(rw, tag_end);
 
             break;
+
+        default:
+            fprintf(stderr, "unknown tag type %d\n", tag->type);
+            break;
     }
 }
 
@@ -410,6 +414,8 @@ const char *tag_get_type_name(tag_e type) {
             return "TAG_List";
         case tag_compound:
             return "TAG_Compound";
+        default:
+            return "Unknown";
     }
     return "Unknown";
 }
