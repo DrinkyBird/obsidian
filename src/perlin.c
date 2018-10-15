@@ -114,5 +114,7 @@ double combinednoise_compute(combinednoise_t *noise, double x, double y) {
 }
 
 void combinednoise_destroy(combinednoise_t *noise) {
+    octavenoise_destroy(noise->n1);
+    octavenoise_destroy(noise->n2);
     free(noise);
 }
