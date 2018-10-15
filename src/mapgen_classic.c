@@ -167,7 +167,6 @@ void gen_caves(map_t *map) {
             }
         } 
 
-        int done = i;
         DO_PERCENT(i, numCaves, "Carving");
     } 
 }
