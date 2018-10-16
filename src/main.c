@@ -164,6 +164,10 @@ void tick() {
 }
 
 void handle_sigint(int d) {
+    if (!running) {
+        return;
+    }
+    
     printf("Caught SIGINT.\n");
     running = false;
 }
