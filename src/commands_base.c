@@ -281,17 +281,15 @@ void basecmd_tree(int argc, char **argv, player_t *player) {
     int height = 4 + rng_next2(global_rng, 1, 3);
 
     int x = (int) player->x;
-    int y = (int) player->y;
+    int y = (int) player->y - 1;
     int z = (int) player->z;
-
-    connection_msgf(player->conn, "Trying to grow tree at %d, %d, %d...", x, y, z);
 
     if (force || mapgen_space_for_tree(map, x, y, z, height)) {
         mapgen_grow_tree(map, x, y, z, height);
 
         connection_msg(player->conn, "&aTree grown.");
     } else {
-        connection_msg(player->conn, "&cNot enough room to grow a tree.");
+        connection_msg(player->conn, "&cNot enough room to grow a tree, or the tree is not on grass.");
     }
 }
 
