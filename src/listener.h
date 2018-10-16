@@ -19,6 +19,9 @@ void broadcast_rw(rw_t *rw);
 void broadcast_msg(const char *msg);
 void broadcast_op_action(player_t *source, const char *f, ...);
 
+/* for map_set */
+void broadcast_block_change(int x, int y, int z, block_e b);
+
 int listener_get_active_connections();
 
 #endif // __LISTENER_H

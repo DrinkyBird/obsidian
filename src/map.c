@@ -3,10 +3,8 @@
 #include <string.h>
 #include <time.h>
 #include "map.h"
-#include "rw.h"
-#include "nbt.h"
-#include "perlin.h"
 #include "config.h"
+#include "listener.h"
 
 map_t *map_create(const char *name, int width, int depth, int height) {
     map_t *map = malloc(sizeof(*map));
@@ -62,6 +60,9 @@ bool map_set(map_t *map, int x, int y, int z, block_e block) {
 
     map->last_modify = (unsigned int)time(NULL);
     map->blocks[i] = block;
+
+    broadcast_block_change(x, y, z, block);
+
     return true;
 }
 

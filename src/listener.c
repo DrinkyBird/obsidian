@@ -196,3 +196,18 @@ int listener_get_active_connections() {
 
     return n;
 }
+
+void broadcast_block_change(int x, int y, int z, block_e b) {
+    extern listener_t *listener;
+    if (listener == NULL || connections == NULL) return;
+    if (listener_get_active_connections() == 0) return;
+
+    rw_t *packet = packet_create();
+    rw_write_byte(packet, PACKET_SET_BLOCK_SERVER);
+    rw_write_int16be(packet, x);
+    rw_write_int16be(packet, y);
+    rw_write_int16be(packet, z);
+    rw_write_byte(packet, (byte)b);
+    broadcast_rw(packet);
+    rw_destroy_and_buffer(packet);
+}

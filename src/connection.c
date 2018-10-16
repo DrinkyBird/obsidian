@@ -309,15 +309,6 @@ nofix:
 
             map_set(map, x, y, z, block);
 
-            rw_t *broadcastpacket = packet_create();
-            rw_write_byte(broadcastpacket, PACKET_SET_BLOCK_SERVER);
-            rw_write_int16be(broadcastpacket, x);
-            rw_write_int16be(broadcastpacket, y);
-            rw_write_int16be(broadcastpacket, z);
-            rw_write_byte(broadcastpacket, (byte)block);
-            broadcast_rw(broadcastpacket);
-            rw_destroy_and_buffer(broadcastpacket);
-
             break;
         }
 
