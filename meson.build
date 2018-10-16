@@ -67,7 +67,7 @@ if build_machine.system() == 'windows'
 
         rc
     ]
-elif build_machine.system() == 'linux'
+else
     deps += cc.find_library('m')
 
     src += [
