@@ -6,12 +6,17 @@
 #include "commands.h"
 #include "namelist.h"
 #include "listener.h"
+#include "mapgen.h"
+#include "map.h"
+#include "rng.h"
 
 extern namelist_t *adminlist;
 extern namelist_t *banlist;
 
 extern int num_players;
 extern player_t **players;
+extern map_t *map;
+extern rng_t *global_rng;
 
 void basecmd_kick(int argc, char **argv, player_t *player) {
     if (!player->op) {
@@ -262,6 +267,34 @@ void basecmd_whois(int argc, char **argv, player_t *player) {
         connection_msgf(player->conn, "* &f%s is using &f%s", name, p->conn->software);
 }
 
+void basecmd_tree(int argc, char **argv, player_t *player) {
+    if (!player->op) {
+        connection_msg(player->conn, "&cYou do not have permission to use this command");
+        return;
+    }
+
+    bool force = false;
+    if (argc == 2) {
+        force = (strcasecmp("--force", argv[1]) == 0);
+    }
+
+    int height = 4 + rng_next2(global_rng, 1, 3);
+
+    int x = (int) player->x;
+    int y = (int) player->y;
+    int z = (int) player->z;
+
+    connection_msgf(player->conn, "Trying to grow tree at %d, %d, %d...", x, y, z);
+
+    if (force || mapgen_space_for_tree(map, x, y, z, height)) {
+        mapgen_grow_tree(map, x, y, z, height);
+
+        connection_msg(player->conn, "&aTree grown.");
+    } else {
+        connection_msg(player->conn, "&cNot enough room to grow a tree.");
+    }
+}
+
 void basecmds_init() {
     command_register("kick", basecmd_kick);
     command_register("ban", basecmd_ban);
@@ -271,4 +304,5 @@ void basecmds_init() {
     command_register("whisper", basecmd_whisper);
     command_register("tp", basecmd_tp);
     command_register("whois", basecmd_whois);
+    command_register("tree", basecmd_tree);
 }
