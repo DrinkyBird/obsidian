@@ -9,6 +9,7 @@
 #include "mapgen.h"
 #include "map.h"
 #include "rng.h"
+#include "mem.h"
 
 extern namelist_t *adminlist;
 extern namelist_t *banlist;
@@ -293,6 +294,16 @@ void basecmd_tree(int argc, char **argv, player_t *player) {
     }
 }
 
+void basecmd_mem(int argc, char **argv, player_t *player) {
+    if (!player->op) {
+        connection_msg(player->conn, "&cYou do not have permission to use this command");
+        return;
+    }
+
+    float used = ((float)mem_get_used()) / 1024.0f;
+    connection_msgf(player->conn, "Used memory: %fK", used);
+}
+
 void basecmds_init() {
     command_register("kick", basecmd_kick);
     command_register("ban", basecmd_ban);
@@ -303,4 +314,5 @@ void basecmds_init() {
     command_register("tp", basecmd_tp);
     command_register("whois", basecmd_whois);
     command_register("tree", basecmd_tree);
+    command_register("mem", basecmd_mem);
 }
