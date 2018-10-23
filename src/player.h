@@ -18,6 +18,7 @@ typedef struct player_s {
 } player_t;
 
 void playerman_init(int players);
+void playerman_deinit();
 int playerman_get_num_online();
 
 player_t *player_get_by_name(const char *name);

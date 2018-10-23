@@ -28,6 +28,7 @@ typedef struct mapsave_s {
 } mapsave_t;
 
 map_t *map_create(const char *name, int width, int depth, int height);
+void map_destroy(map_t *map);
 
 block_e map_get(map_t *map, int x, int y, int z);
 bool map_set(map_t *map, int x, int y, int z, block_e block);

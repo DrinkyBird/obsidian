@@ -25,6 +25,10 @@ void playerman_init(int numplayers) {
     }
 }
 
+void playerman_deinit() {
+    free(players);
+}
+
 player_t *player_get_by_name(const char *name) {
     for (int i = 0; i < num_players; i++) {
         if (players[i] == NULL) {

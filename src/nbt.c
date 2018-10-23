@@ -15,17 +15,23 @@ static tag_e expected = tag_end;
 tag_t *tag_create_empty() {
     tag_t *t = malloc(sizeof(tag_t));
 
+    t->type = 0;
     t->name = NULL;
     t->no_header = true;
     t->array_size = 0;
+    t->l = 0LL;
 
     return t;
 }
 
 tag_t *nbt_create(const char *name) {
     tag_t *t = tag_create_empty();
-    t->name = (char *)name;
     t->no_header = false;
+
+    t->name = calloc(strlen(name), sizeof(char));
+    strncpy(t->name, name, strlen(name));
+    t->name[strlen(name)] = '\0';
+
     return t;
 }
 
@@ -44,7 +50,8 @@ tag_t *nbt_create_string(const char *name, const char *val){
     
     t->array_size = strlen(val);
     t->str = malloc(t->array_size);
-    strcpy(t->str, val);
+    strncpy(t->str, val, t->array_size);
+    t->str[t->array_size] = '\0';
 
     return t;
 }
@@ -69,13 +76,19 @@ void nbt_destroy(tag_t *tag, bool destroy_values) {
     if (tag->type == tag_list || tag->type == tag_compound) {
         for (int i = 0; i < tag->array_size; i++) {
             tag_t *t = tag->list[i];
-            nbt_destroy(t, destroy_values);
+            
+            if (t != NULL) {
+                nbt_destroy(t, destroy_values);
+            }
         }
+
+        free(tag->list);
     }
 
     if (!tag->no_header) {
         if (tag->name != NULL) {
             free(tag->name);
+            tag->name = NULL;
         }
     }
 
@@ -219,6 +232,7 @@ tag_t *nbt_read(rw_t *rw, bool named) {
 
     if (named) {
         t->type = rw_read_byte(rw);
+        t->no_header = false;
 
         if (t->type != tag_end) {
             int namelen = rw_read_int16be(rw);
@@ -294,6 +308,7 @@ tag_t *nbt_read(rw_t *rw, bool named) {
             /* count how many sub-tags we have */
             while ((subtag = nbt_read(rw, true))->type != tag_end) {
                 t->array_size++;
+                nbt_destroy(subtag, true);
             }            
 
             t->list = calloc(t->array_size, sizeof(*t->list));

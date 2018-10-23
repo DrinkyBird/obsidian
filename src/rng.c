@@ -7,6 +7,7 @@ rng_t *rng_create(int seed) {
     rng_t *r = malloc(sizeof(rng_t));
     r->value = 0x5DEECE66DL;
     r->mask = (1LL << 48) - 1;
+    r->seed = 0;
 
     rng_set_seed(r, seed);
 

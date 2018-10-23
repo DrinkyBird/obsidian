@@ -1,6 +1,9 @@
 project('miniclassic', 'c', version: '0.1a', meson_version: '>=0.47.0')
 
 cc = meson.get_compiler('c')
+is_debug = get_option('buildtype').startswith('debug')
+ldflags = []
+ccflags = []
 
 src = [
     'src/ini.c',
@@ -43,6 +46,10 @@ if get_option('enable_heartbeat')
     add_global_arguments('-DENABLE_HEARTBEAT', language: 'c')
 endif
 
+if is_debug
+    #add_global_arguments('-DDEBUG', language: 'c')
+endif
+
 configure_file(input: 'settings.ini', output: 'settings.ini', copy: true)
 
 version_conf = configuration_data()
@@ -74,6 +81,21 @@ else
         'src/posix/posix_main.c',
         'src/posix/posix_err.c'
     ]
+
+    if is_debug
+        ldflags += [
+            '-Wl,--wrap=malloc',
+            '-Wl,--wrap=free',
+            '-Wl,--wrap=calloc',
+            '-rdynamic'
+        ]
+
+        src += 'src/mem.c'
+    endif
 endif
 
-executable('miniclassic', src, dependencies: deps, include_directories: builddir_inc)
+if host_machine.cpu_family() == 'x86' or host_machine.cpu_family() == 'x86_64' and cc.get_id() == 'gcc'
+    ccflags += ['-msse', '-msse2', '-mavx', '-mavx2', '-ftree-vectorize']
+endif
+
+executable('miniclassic', src, dependencies: deps, include_directories: builddir_inc, link_args: ldflags, c_args: ccflags)

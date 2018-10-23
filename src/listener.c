@@ -138,6 +138,9 @@ void listener_destroy(listener_t *listener) {
     }
 
     close(listener->socket_fd);
+
+    free(connections);
+    free(listener);
 }
 
 void broadcast_rw(rw_t *rw) {

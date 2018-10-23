@@ -132,12 +132,14 @@ int main(int argc, char *argv[]) {
     }
 
     listener_destroy(listener);
+    playerman_deinit();
     
 #ifdef ENABLE_HEARTBEAT
     heartbeat_shutdown();
 #endif
 
     map_save(map);
+    map_destroy(map);
 
     commands_shutdown();
 
@@ -146,6 +148,7 @@ int main(int argc, char *argv[]) {
 
     rng_destroy(global_rng);
 
+    free(full_name);
     platform_shutdown();
 
     return 0;

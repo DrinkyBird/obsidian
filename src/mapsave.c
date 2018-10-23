@@ -95,6 +95,8 @@ void map_save(map_t *map) {
     deflateEnd(&stream);
 
     rw_destroy_and_buffer(rw);
+    nbt_destroy(root, true);
+    free(outbuf);
 }
 
 map_t *map_load(const char *name) {
@@ -218,6 +220,7 @@ map_t *map_load(const char *name) {
 
     nbt_destroy(root, true);
     rw_destroy_and_buffer(rw);
+    free(inf);
 
     return map;
 }
@@ -238,6 +241,8 @@ int attempt_inflate(byte *in, int in_size, byte *out, int out_size, int *buf_siz
     }
 
     if ((r = inflate(&stream, Z_FINISH)) != Z_STREAM_END) {
+        inflateEnd(&stream);
+
         return r;
     }
 

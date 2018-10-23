@@ -39,8 +39,5 @@ void *mapgz_run(void *data) {
     conn->thread_successful = true;
     conn->thread_running = false;
 
-    free(mgz->blocks);
-    free(data);
-
     pthread_exit(0);
 }

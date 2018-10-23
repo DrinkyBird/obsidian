@@ -41,6 +41,7 @@ extern int num_connections;
 extern connection_t **connections;
 extern namelist_t *adminlist;
 extern namelist_t *banlist;
+extern bool disable_debug_output;
 
 connection_t *connection_create(int fd) {
     connection_t *conn = malloc(sizeof(*conn));
@@ -76,6 +77,14 @@ void connection_destroy(connection_t *conn) {
         player_destroy(conn->player);
     }
 
+    if (conn->extensions != NULL) {
+        for (int i = 0; i < conn->num_extensions; i++) {
+            free(conn->extensions[i]);
+        }
+
+        free(conn->extensions);
+    }
+
     conn->is_connected = false;
 
     close(conn->fd);
@@ -93,9 +102,6 @@ void connection_tick(connection_t *conn) {
     if (!conn->is_connected || !conn->fd_open) {
         return;
     }
-    
-    unsigned char *buf = malloc(IN_BUF_SIZE);
-    int len;
 
     if (!conn->mapgz_sent && conn->thread_successful) {
         connection_send_mapgz(conn);
@@ -103,6 +109,11 @@ void connection_tick(connection_t *conn) {
 
     connection_ping(conn);
     connection_flush_out(conn);
+
+    disable_debug_output = true;
+    unsigned char *buf = malloc(IN_BUF_SIZE);
+    
+    int len;
 
     len = recv(conn->fd, buf, IN_BUF_SIZE, 0);
     if (len == -1) {
@@ -118,6 +129,7 @@ void connection_tick(connection_t *conn) {
         conn->fd_open = false;
 
         if (e == ECONNRESET || e == EPIPE) {
+            disable_debug_output = false;
             connection_disconnect(conn, "Client quit");
             return;
         }
@@ -136,15 +148,18 @@ void connection_tick(connection_t *conn) {
     int id;
 
     rw_seek(rw, 0, rw_set);
+    disable_debug_output = false;
     while ((int)rw_tell(rw) < len - 1) {
         id = rw_read_byte(rw);
         if (!connection_handle_packet(conn, id, rw))
             break;
     }
+    disable_debug_output = true;
 
     rw_destroy(rw);
 
     free(buf);
+    disable_debug_output = false;
 }
 
 bool connection_handle_packet(connection_t *conn, unsigned char id, rw_t* rw) {
@@ -437,44 +452,50 @@ void packet_send(rw_t *packet, connection_t *conn) {
 }
 
 void connection_send_mapgz(connection_t *conn) {
-    byte *buf = malloc(1024);
-    memset(buf, 0, 1024);
+    for (int i = 0; i < 4; i++) {
+        byte *buf = malloc(1024);
+        memset(buf, 0, 1024);
 
-    int r = rw_read(conn->mapgz_rw, buf, 1024);
+        int r = rw_read(conn->mapgz_rw, buf, 1024);
 
-    rw_t *packet = packet_create();
-    rw_write_byte(packet, PACKET_LEVEL_CHUNK);
-    rw_write_int16be(packet, r);
-    rw_write(packet, buf, 1024);
-    rw_write_byte(packet, 0);
-    packet_send(packet, conn);
-
-    connection_flush_out(conn);
-
-    free(buf);
-
-    if (rw_tell(conn->mapgz_rw) == rw_size(conn->mapgz_rw)) {
-        free(conn->mapgz_data);
-        rw_destroy(conn->mapgz_rw);
-
-        conn->mapgz_sent = true;
-
-        packet = packet_create();
-        rw_write_byte(packet, PACKET_LEVEL_FINISH);
-        rw_write_int16be(packet, map->width);
-        rw_write_int16be(packet, map->depth);
-        rw_write_int16be(packet, map->height);
+        rw_t *packet = packet_create();
+        rw_write_byte(packet, PACKET_LEVEL_CHUNK);
+        rw_write_int16be(packet, r);
+        rw_write(packet, buf, 1024);
+        rw_write_byte(packet, 0);
         packet_send(packet, conn);
 
-        conn->player = player_create(conn);
-        if (conn->player == NULL) {
-            connection_disconnect(conn, "Failed to create player instance");
-            return;
+        connection_flush_out(conn);
+
+        free(buf);
+
+        if (rw_tell(conn->mapgz_rw) == rw_size(conn->mapgz_rw)) {
+            free(conn->mapgz_data);
+            rw_destroy(conn->mapgz_rw);
+
+            conn->mapgz_data = NULL;
+
+            conn->mapgz_sent = true;
+
+            packet = packet_create();
+            rw_write_byte(packet, PACKET_LEVEL_FINISH);
+            rw_write_int16be(packet, map->width);
+            rw_write_int16be(packet, map->depth);
+            rw_write_int16be(packet, map->height);
+            packet_send(packet, conn);
+
+            conn->player = player_create(conn);
+            if (conn->player == NULL) {
+                connection_disconnect(conn, "Failed to create player instance");
+                return;
+            }
+
+            conn->player->op = namelist_contains(adminlist, conn->name);
+
+            player_spawn(conn->player);
+
+            break;
         }
-
-        conn->player->op = namelist_contains(adminlist, conn->name);
-
-        player_spawn(conn->player);
     }
 }
 

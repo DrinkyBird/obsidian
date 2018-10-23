@@ -78,13 +78,19 @@ namelist_t *namelist_read_file(const char *fn) {
         }
     }
 
+    free(namebuf);
+
     return nl;
 }
 
 void namelist_destroy(namelist_t *nl) {
     if (nl->filename != NULL) {
         namelist_write_file(nl, nl->filename);
+        free(nl->filename);
+        nl->filename = NULL;
     }
+
+    free(nl->names);
 
     free(nl);
 }

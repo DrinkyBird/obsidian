@@ -32,6 +32,15 @@ map_t *map_create(const char *name, int width, int depth, int height) {
     return map;
 }
 
+void map_destroy(map_t *map){
+    free(map->blocks);
+    free(map->uuid);
+
+    rng_destroy(map->rng);
+
+    free(map);
+}
+
 block_e map_get(map_t *map, int x, int y, int z) {
     if (!map_pos_valid(map, x, y, z)) {
         fprintf(stderr, "NOTE: attempt to get invalid block [%d, %d, %d]\n", x, y, z);
