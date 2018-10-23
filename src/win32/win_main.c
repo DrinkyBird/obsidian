@@ -11,7 +11,7 @@ static char *win_name;
 static char *win_ver;
 
 void platform_init() {
-    SetConsoleTitleA("miniclassic");
+    SetConsoleTitleA("obsidian");
 
     WORD versionReq = MAKEWORD(2, 2);
     WSADATA data;
@@ -37,7 +37,7 @@ void platform_tick() {
 
     const char *plural = (online == 1 ? "" : "s");
     char buf[128];
-    snprintf(buf, sizeof(buf), "miniclassic v%s - %d player%s online", VERSION_STR, online, plural);
+    snprintf(buf, sizeof(buf), "obsidian v%s - %d player%s online", VERSION_STR, online, plural);
 
     SetConsoleTitleA(buf);
 }

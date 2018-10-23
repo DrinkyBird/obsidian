@@ -49,7 +49,7 @@ void map_save(map_t *map) {
     nbt_add_tag(spawntag, spawnztag);
 
     tag_t *metadatatag = nbt_create_compound("Metadata");nbt_add_tag(root, metadatatag);
-    tag_t *exttag = nbt_create_compound("miniclassic"); nbt_add_tag(metadatatag, exttag);
+    tag_t *exttag = nbt_create_compound("obsidian"); nbt_add_tag(metadatatag, exttag);
 
     tag_t *blockhashtag = nbt_create("BlocksHash"); nbt_add_tag(exttag, blockhashtag);
 
@@ -205,7 +205,7 @@ map_t *map_load(const char *name) {
     tag_t *metadatatag = nbt_get_tag(root, "Metadata");
 
     if (metadatatag != NULL && metadatatag->type == tag_compound) {
-        tag_t *exttag = nbt_get_tag(metadatatag, "miniclassic");
+        tag_t *exttag = nbt_get_tag(metadatatag, "obsidian");
 
         if (exttag != NULL && metadatatag->type == tag_compound) {
             tag_t *hashtag = nbt_get_tag(exttag, "BlocksHash");

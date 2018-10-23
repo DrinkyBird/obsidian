@@ -1,4 +1,4 @@
-project('miniclassic', 'c', version: '0.1a', meson_version: '>=0.47.0')
+project('obsidian', 'c', version: '0.1a', meson_version: '>=0.47.0')
 
 cc = meson.get_compiler('c')
 is_debug = get_option('buildtype').startswith('debug')
@@ -98,4 +98,4 @@ if host_machine.cpu_family() == 'x86' or host_machine.cpu_family() == 'x86_64' a
     ccflags += ['-msse', '-msse2', '-mavx', '-mavx2', '-ftree-vectorize']
 endif
 
-executable('miniclassic', src, dependencies: deps, include_directories: builddir_inc, link_args: ldflags, c_args: ccflags)
+executable('obsidian', src, dependencies: deps, include_directories: builddir_inc, link_args: ldflags, c_args: ccflags)

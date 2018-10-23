@@ -56,7 +56,7 @@ int main(int argc, char *argv[]) {
     global_rng = rng_create((int)time(NULL));
 
     full_name = malloc(64);
-    snprintf(full_name, 64, "miniclassic v%s on %s %s", VERSION_STR, platform_get_name(), platform_get_version());
+    snprintf(full_name, 64, "obsidian v%s on %s %s", VERSION_STR, platform_get_name(), platform_get_version());
 
     if (!config_parse()) {
         return 1;
