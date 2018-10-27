@@ -54,18 +54,15 @@ const char *platform_get_version() {
     return win_ver;
 }
 
-char* platform_strsep(char** stringp, const char* delim) {
+char *platform_strsep(char **stringp, const char *delim) {
     char* start = *stringp;
     char* p;
 
     p = (start != NULL) ? strpbrk(start, delim) : NULL;
 
-    if (p == NULL)
-    {
+    if (p == NULL) {
         *stringp = NULL;
-    }
-    else
-    {
+    } else {
         *p = '\0';
         *stringp = p + 1;
     }
