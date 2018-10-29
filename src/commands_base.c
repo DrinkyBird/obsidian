@@ -11,6 +11,7 @@
 #include "rng.h"
 #include "mem.h"
 #include "config.h"
+#include "version.h"
 
 extern namelist_t *adminlist;
 extern namelist_t *banlist;
@@ -318,6 +319,11 @@ void basecmd_reload(int argc, char **argv, player_t *player) {
     }
 }
 
+void basecmd_ver(int argc, char **argv, player_t *player) {
+    connection_msgf(player->conn, "%s", app_get_full_name());
+    connection_msgf(player->conn, "%s %s", VERSION_COMPILER_ID, VERSION_COMPILER_VER);
+}
+
 void basecmds_init() {
     command_register("kick", basecmd_kick);
     command_register("ban", basecmd_ban);
@@ -330,4 +336,6 @@ void basecmds_init() {
     command_register("tree", basecmd_tree);
     command_register("mem", basecmd_mem);
     command_register("reload", basecmd_reload);
+    command_register("ver", basecmd_ver);
+    command_register("version", basecmd_ver);
 }
