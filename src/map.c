@@ -36,6 +36,7 @@ map_t *map_create(const char *name, int width, int depth, int height) {
     map->last_access = 0;
     map->uuid = calloc(16, sizeof(byte));
     map->rng = rng_create((int)time(NULL));
+    map->modified_since_last_save = true;
 
     for (int i = 0; i < 16; i++) {
         map->uuid[i] = (byte)rng_next2(map->rng, 0, 256);
@@ -85,6 +86,7 @@ bool map_set(map_t *map, int x, int y, int z, block_e block) {
     int i = map_get_block_index(map, x, y, z);
 
     map->last_modify = (unsigned int)time(NULL);
+    map->modified_since_last_save = true;
     map->blocks[i] = block;
 
     broadcast_block_change(x, y, z, block);

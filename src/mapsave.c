@@ -29,6 +29,10 @@
 static int attempt_inflate(byte *in, int in_size, byte *out, int out_size, int *buf_size);
 
 void map_save(map_t *map) {
+    if (!map->modified_since_last_save) {
+        return;
+    }
+    
     char buf[128];
     snprintf(buf, sizeof(buf), "%s.cw", map->name);
 
@@ -114,6 +118,8 @@ void map_save(map_t *map) {
     rw_destroy_and_buffer(rw);
     nbt_destroy(root, true);
     free(outbuf);
+
+    map->modified_since_last_save = false;
 }
 
 map_t *map_load(const char *name) {
@@ -238,6 +244,8 @@ map_t *map_load(const char *name) {
     nbt_destroy(root, true);
     rw_destroy_and_buffer(rw);
     free(inf);
+
+    map->modified_since_last_save = false;
 
     return map;
 }

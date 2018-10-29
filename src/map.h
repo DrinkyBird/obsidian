@@ -34,15 +34,8 @@ typedef struct map_s {
 
     byte *uuid;
     unsigned int time_created, last_modify, last_access;
+    bool modified_since_last_save;
 } map_t;
-
-typedef struct mapsave_s {
-    char _magic[4];
-    byte _file_version;
-
-    const char *name;
-    int width, depth, height;
-} mapsave_t;
 
 map_t *map_create(const char *name, int width, int depth, int height);
 void map_destroy(map_t *map);
