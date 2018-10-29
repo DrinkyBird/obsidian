@@ -143,7 +143,8 @@ void connection_tick(connection_t *conn) {
 
         conn->fd_open = false;
 
-        if (e == ECONNRESET || e == EPIPE) {
+        if (e == ECONNRESET || e == EPIPE || e == EBADF) {
+            conn->is_connected = false;
             connection_disconnect(conn, "Client quit");
             return;
         }
