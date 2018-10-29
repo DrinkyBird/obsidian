@@ -108,6 +108,8 @@ void connection_destroy(connection_t *conn) {
     free(conn->out_buf);
     free(conn);
 
+    conn = NULL;
+
     /* save the map on empty server */
     if (listener_get_active_connections() == 0) {
         map_save(map);
@@ -530,7 +532,7 @@ void connection_msgf(connection_t *conn, const char *f, ...) {
 }
 
 void connection_disconnect(connection_t *conn, const char *reason) {
-    if (!conn->is_connected) {
+    if (conn == NULL || !conn->is_connected) {
         return;
     }
 
