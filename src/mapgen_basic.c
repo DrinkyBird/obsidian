@@ -24,8 +24,7 @@ void mapgen_flat_generate(map_t *map) {
 
     for (int x = 0; x < map->width; x++)
     for (int z = 0; z < map->height; z++)
-    for (int y = 0; y < land; y++) 
-    {
+    for (int y = 0; y < land; y++)  {
         block_e b = air;
 
         if (y == land - 1) {
