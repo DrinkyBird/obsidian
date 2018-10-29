@@ -53,7 +53,7 @@ namelist_t *adminlist = NULL;
 
 rng_t *global_rng = NULL;
 
-static bool running = true;
+bool running = true;
 
 static char *full_name = NULL;
 
