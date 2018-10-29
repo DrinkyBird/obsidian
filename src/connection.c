@@ -534,14 +534,16 @@ void connection_disconnect(connection_t *conn, const char *reason) {
         return;
     }
 
-    /* we don't need to send other packets if we're disconnecting */
-    rw_seek(conn->out_rw, 0, rw_set);
+    if (conn->fd_open) {
+        /* we don't need to send other packets if we're disconnecting */
+        rw_seek(conn->out_rw, 0, rw_set);
 
-    rw_t *packet = packet_create();
-    rw_write_byte(packet, PACKET_PLAYER_DISCONNECT);
-    rw_write_mc_str(packet, reason);
-    packet_send(packet, conn);
-    connection_flush_out(conn);
+        rw_t *packet = packet_create();
+        rw_write_byte(packet, PACKET_PLAYER_DISCONNECT);
+        rw_write_mc_str(packet, reason);
+        packet_send(packet, conn);
+        connection_flush_out(conn);
+    }
 
     printf("%s left the game. (%s)\n", conn->name, reason);
 
