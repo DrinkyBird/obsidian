@@ -26,7 +26,6 @@
 #include "mapgen.h"
 #include "map.h"
 #include "rng.h"
-#include "mem.h"
 #include "config.h"
 #include "version.h"
 
@@ -315,16 +314,6 @@ void basecmd_tree(int argc, char **argv, player_t *player) {
     }
 }
 
-void basecmd_mem(int argc, char **argv, player_t *player) {
-    if (!player->op) {
-        connection_msg(player->conn, "&cYou do not have permission to use this command");
-        return;
-    }
-
-    float used = ((float)mem_get_used()) / 1024.0f;
-    connection_msgf(player->conn, "Used memory: %fK", used);
-}
-
 void basecmd_reload(int argc, char **argv, player_t *player) {
     if (!player->op) {
         connection_msg(player->conn, "&cYou do not have permission to use this command");
@@ -363,7 +352,6 @@ void basecmds_init() {
     command_register("tp", basecmd_tp);
     command_register("whois", basecmd_whois);
     command_register("tree", basecmd_tree);
-    command_register("mem", basecmd_mem);
     command_register("reload", basecmd_reload);
     command_register("ver", basecmd_ver);
     command_register("version", basecmd_ver);

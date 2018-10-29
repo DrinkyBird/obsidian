@@ -58,7 +58,6 @@ extern int num_connections;
 extern connection_t **connections;
 extern namelist_t *adminlist;
 extern namelist_t *banlist;
-extern bool disable_debug_output;
 
 connection_t *connection_create(int fd) {
     connection_t *conn = malloc(sizeof(*conn));
@@ -127,7 +126,6 @@ void connection_tick(connection_t *conn) {
     connection_ping(conn);
     connection_flush_out(conn);
 
-    disable_debug_output = true;
     unsigned char *buf = malloc(IN_BUF_SIZE);
     
     int len;
@@ -146,7 +144,6 @@ void connection_tick(connection_t *conn) {
         conn->fd_open = false;
 
         if (e == ECONNRESET || e == EPIPE) {
-            disable_debug_output = false;
             connection_disconnect(conn, "Client quit");
             return;
         }
@@ -165,18 +162,15 @@ void connection_tick(connection_t *conn) {
     int id;
 
     rw_seek(rw, 0, rw_set);
-    disable_debug_output = false;
     while ((int)rw_tell(rw) < len - 1) {
         id = rw_read_byte(rw);
         if (!connection_handle_packet(conn, id, rw))
             break;
     }
-    disable_debug_output = true;
 
     rw_destroy(rw);
 
     free(buf);
-    disable_debug_output = false;
 }
 
 bool connection_handle_packet(connection_t *conn, unsigned char id, rw_t* rw) {

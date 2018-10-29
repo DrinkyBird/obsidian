@@ -46,10 +46,6 @@ if get_option('enable_heartbeat')
     add_global_arguments('-DENABLE_HEARTBEAT', language: 'c')
 endif
 
-if is_debug
-    #add_global_arguments('-DDEBUG', language: 'c')
-endif
-
 configure_file(input: 'settings.ini', output: 'settings.ini', copy: true)
 
 version_conf = configuration_data()
@@ -81,17 +77,6 @@ else
         'src/posix/posix_main.c',
         'src/posix/posix_err.c'
     ]
-
-    if is_debug
-        ldflags += [
-            '-Wl,--wrap=malloc',
-            '-Wl,--wrap=free',
-            '-Wl,--wrap=calloc',
-            '-rdynamic'
-        ]
-
-        src += 'src/mem.c'
-    endif
 endif
 
 if host_machine.cpu_family() == 'x86' or host_machine.cpu_family() == 'x86_64' and cc.get_id() == 'gcc'
