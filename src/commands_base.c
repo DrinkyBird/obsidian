@@ -10,6 +10,7 @@
 #include "map.h"
 #include "rng.h"
 #include "mem.h"
+#include "config.h"
 
 extern namelist_t *adminlist;
 extern namelist_t *banlist;
@@ -304,6 +305,19 @@ void basecmd_mem(int argc, char **argv, player_t *player) {
     connection_msgf(player->conn, "Used memory: %fK", used);
 }
 
+void basecmd_reload(int argc, char **argv, player_t *player) {
+    if (!player->op) {
+        connection_msg(player->conn, "&cYou do not have permission to use this command");
+        return;
+    }
+
+    if (config_reload()) {
+        connection_msg(player->conn, "&aConfiguration reloaded.");
+    } else {
+        connection_msg(player->conn, "&cAn error occured while reloading the configuration.");
+    }
+}
+
 void basecmds_init() {
     command_register("kick", basecmd_kick);
     command_register("ban", basecmd_ban);
@@ -315,4 +329,5 @@ void basecmds_init() {
     command_register("whois", basecmd_whois);
     command_register("tree", basecmd_tree);
     command_register("mem", basecmd_mem);
+    command_register("reload", basecmd_reload);
 }

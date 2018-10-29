@@ -22,6 +22,21 @@ bool config_parse() {
     return true;
 }
 
+bool config_reload() {
+    config_t *oldconf = configuration;
+
+    if (!config_parse()) {
+        free(configuration);
+        configuration = oldconf;
+
+        return false;
+    }
+
+    free(oldconf);
+    
+    return true;
+}
+
 int config_handle_ini(void* user, const char* section, const char* name, const char* value, int line) {
     if (strcasecmp(section, "server") == 0) {
         if (strcasecmp(name, "port") == 0) {

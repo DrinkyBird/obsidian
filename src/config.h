@@ -19,5 +19,6 @@ typedef struct config_s {
 extern config_t *configuration;
 
 bool config_parse();
+bool config_reload();
 
 #endif
