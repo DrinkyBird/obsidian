@@ -26,6 +26,8 @@ typedef int socket_t;
 
 #define SOCKERR_EAGAIN EAGAIN
 #define SOCKERR_EWOULDBLOCK EWOULDBLOCK
+#define SOCKERR_ECONNRESET ECONNRESET
+#define SOCKERR_EBADF EBADF
 
 #define platform_strsep strsep
 

@@ -25,6 +25,8 @@ typedef SOCKET socket_t;
 
 #define SOCKERR_EAGAIN 0
 #define SOCKERR_EWOULDBLOCK WSAEWOULDBLOCK
+#define SOCKERR_ECONNRESET WSAECONNRESET
+#define SOCKERR_EBADF WSAEBADF
 
 char *platform_strsep(char **stringp, const char *delim);
 
