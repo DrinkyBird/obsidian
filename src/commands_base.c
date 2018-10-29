@@ -38,6 +38,8 @@ extern player_t **players;
 extern map_t *map;
 extern rng_t *global_rng;
 
+extern bool running;
+
 void basecmd_kick(int argc, char **argv, player_t *player) {
     if (!player->op) {
         connection_msg(player->conn, "&cYou do not have permission to use this command");
@@ -341,6 +343,16 @@ void basecmd_ver(int argc, char **argv, player_t *player) {
     connection_msgf(player->conn, "%s %s", VERSION_COMPILER_ID, VERSION_COMPILER_VER);
 }
 
+void basecmd_stop(int argc, char **argv, player_t *player) {
+    if (!player->op) {
+        connection_msg(player->conn, "&cYou do not have permission to use this command");
+        return;
+    }
+
+    broadcast_op_action(player, "Stopped the server");
+    running = false;
+}
+
 void basecmds_init() {
     command_register("kick", basecmd_kick);
     command_register("ban", basecmd_ban);
@@ -355,4 +367,5 @@ void basecmds_init() {
     command_register("reload", basecmd_reload);
     command_register("ver", basecmd_ver);
     command_register("version", basecmd_ver);
+    command_register("stop", basecmd_stop);
 }
