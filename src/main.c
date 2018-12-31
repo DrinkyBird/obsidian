@@ -50,6 +50,7 @@ static void util_nbtdump(const char *filename);
 
 namelist_t *banlist = NULL;
 namelist_t *adminlist = NULL;
+namelist_t *whitelist = NULL;
 
 rng_t *global_rng = NULL;
 
@@ -109,6 +110,7 @@ int main(int argc, char *argv[]) {
 
     banlist = read_or_create_namelist("banlist.txt");
     adminlist = read_or_create_namelist("adminlist.txt");
+    whitelist = read_or_create_namelist("whitelist.txt");
 
     commands_init();
 
@@ -160,6 +162,7 @@ int main(int argc, char *argv[]) {
 
     commands_shutdown();
 
+    namelist_destroy(whitelist);
     namelist_destroy(adminlist);
     namelist_destroy(banlist);
 

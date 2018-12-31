@@ -68,6 +68,8 @@ int config_handle_ini(void* user, const char* section, const char* name, const c
             configuration->verifynames = boolify(value, line);
         } else if (strcasecmp(name, "heartbeat") == 0) {
             configuration->should_heartbeat = boolify(value, line);
+        } else if (strcasecmp(name, "whitelist") == 0) {
+            configuration->whitelist = boolify(value, line);
         }
     }
 

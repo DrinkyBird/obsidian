@@ -25,6 +25,7 @@ typedef struct config_s {
     int maxplayers;
     bool verifynames;
     bool should_heartbeat;
+    bool whitelist;
 
     const char *name, *motd;
 

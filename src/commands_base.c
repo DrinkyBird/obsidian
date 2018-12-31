@@ -31,6 +31,7 @@
 
 extern namelist_t *adminlist;
 extern namelist_t *banlist;
+extern namelist_t *whitelist;
 
 extern int num_players;
 extern player_t **players;
@@ -342,6 +343,57 @@ void basecmd_stop(int argc, char **argv, player_t *player) {
     running = false;
 }
 
+void basecmd_whitelist(int argc, char **argv, player_t *player) {
+    if (!player->op) {
+        connection_msg(player->conn, "&cYou do not have permission to use this command");
+        return;
+    }
+    
+	if (argc < 2) {
+		connection_msg(player->conn, "Syntax: /whitelist <add|remove> [name]");
+		return;
+	}
+	
+	char *subcmd = argv[1];
+	
+	if (strcasecmp(subcmd, "add") == 0) {
+		if (argc < 3) {
+			connection_msg(player->conn, "Syntax: /whitelist add [name]");
+			return;
+		}
+		
+		char *name = argv[2];
+		if (namelist_contains(whitelist, name)) {
+			connection_msg(player->conn, "That user is already on the whitelist");
+			return;
+		}
+		
+		namelist_add(whitelist, name);
+		connection_msgf(player->conn, "%s has been added to the whitelist", name);
+	}
+	
+	else if (strcasecmp(subcmd, "remove") == 0) {
+		if (argc < 3) {
+			connection_msg(player->conn, "Syntax: /whitelist remove [name]");
+			return;
+		}
+		
+		char *name = argv[2];
+		if (!namelist_contains(whitelist, name)) {
+			connection_msg(player->conn, "That user is not on the whitelist");
+			return;
+		}
+		
+		namelist_remove(whitelist, name);
+		connection_msgf(player->conn, "%s has been removed from the whitelist", name);
+	}
+	
+	else {
+		connection_msg(player->conn, "Syntax: /whitelist <add|remove|list> [name]");
+		return;
+	}
+}
+
 void basecmds_init() {
     command_register("kick", basecmd_kick);
     command_register("ban", basecmd_ban);
@@ -356,4 +408,5 @@ void basecmds_init() {
     command_register("ver", basecmd_ver);
     command_register("version", basecmd_ver);
     command_register("stop", basecmd_stop);
+    command_register("whitelist", basecmd_whitelist);
 }

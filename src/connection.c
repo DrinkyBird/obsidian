@@ -58,6 +58,7 @@ extern int num_connections;
 extern connection_t **connections;
 extern namelist_t *adminlist;
 extern namelist_t *banlist;
+extern namelist_t *whitelist;
 
 connection_t *connection_create(int fd) {
     connection_t *conn = malloc(sizeof(*conn));
@@ -198,6 +199,11 @@ bool connection_handle_packet(connection_t *conn, unsigned char id, rw_t* rw) {
                 connection_disconnect(conn, "You are banned from this server!");
                 return false;
             }
+            
+            if (configuration->whitelist && !namelist_contains(whitelist, conn->name)) {
+                connection_disconnect(conn, "You not on the whitelist!");
+                return false;
+			}
 
             byte unused = rw_read_byte(rw);
 
