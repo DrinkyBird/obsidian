@@ -196,8 +196,12 @@ map_t *map_load(const char *name) {
     int w = xtag->i;
     int d = ytag->i;
     int h = ztag->i;
-    byte *blocks = blockstag->pb;
-    byte *uuid = uuidtag->pb;
+
+    byte *blocks = calloc(w * d* h, sizeof(byte));
+    byte *uuid = malloc(16);
+
+    memcpy(blocks, blockstag->pb, w * d * h);
+    memcpy(uuid, uuidtag->pb, 16);
 
     tag_t *createtimetag = nbt_get_tag(root, "TimeCreated");
     tag_t *modifytimetag = nbt_get_tag(root, "LastModified");
