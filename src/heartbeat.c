@@ -105,7 +105,7 @@ void heartbeat_shutdown() {
 }
 
 void make_salt() {
-    salt = malloc(SALT_LENGTH);
+    salt = calloc(SALT_LENGTH, 1);
     int nchars = strlen(SALT_CHARACTERS);
 
     for (int i = 0; i < SALT_LENGTH; i++) {
@@ -118,7 +118,12 @@ char *heartbeat_get_salt() {
     return salt;
 }
 
-size_t heartbeat_curl_write_stub(void *buffer, size_t size, size_t nmemb, void *userp)
-{
-   return size * nmemb;
+size_t heartbeat_curl_write_stub(void *buffer, size_t size, size_t nmemb, void *userp) {
+    char *text = (char *) buffer;
+
+    if (strncmp("http", text, 4) != 0) {
+        fprintf(stderr, "Message from heartbeat service: %s\n", text);
+    }
+
+    return size * nmemb;
 }
