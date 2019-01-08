@@ -1,6 +1,6 @@
 /*
     Obsidian, a lightweight Classicube server
-    Copyright (C) 2018 Sean Baggaley
+    Copyright (C) 2018-2019 Sean Baggaley
 
     Obsidian is free software: you can redistribute it and/or modify
     it under the terms of the GNU Affero General Public License as published by
