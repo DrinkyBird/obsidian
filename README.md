@@ -2,6 +2,8 @@
 
 obsidian is a lightweight [ClassiCube](https://www.classicube.net/) server written in C.
 
+**Note 2023-03-20**: I originally worked on this around 2018-2019, and haven't touched it since. I'm uploading it to GitHub, as the Git server hosting it has been dead about as long as that and I'd like it somewhere other than my possibly-failing hard drive.
+
 ## Build on Linux
 ### Debian dependencies
 ```sh
